@@ -35,3 +35,7 @@ get "/list" do
   @list = visits.get(6)
   haml :list
 end
+
+get "/sand" do
+  haml :sand
+end
