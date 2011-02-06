@@ -1,0 +1,5 @@
+.visits
+  - @list.each do |visit|
+    Someone read
+    %a{:href => visit.url}= visit.title
+    = visit.when
