@@ -4,6 +4,9 @@ require "rubygems"
 require "sinatra"
 require "haml"
 
+# XXX how to set :secret for session cookies?  rack.session.options?
+enable :sessions
+
 get "/" do
   haml :index
 end
