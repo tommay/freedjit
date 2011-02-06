@@ -10,3 +10,12 @@ enable :sessions
 get "/" do
   haml :index
 end
+
+get "/v" do
+  @last = session[:last]
+  @ip = request.ip
+  @title = params[:title]
+  @url = params[:url]
+  session[:last] = Time.now
+  haml :v
+end
