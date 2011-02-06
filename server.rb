@@ -22,7 +22,13 @@ end
 get "/v" do
   session[:id] ||= ("%08x" % rand(1 << 32))
 
-  visit = Visit.new(session[:id], request.ip, params[:title], params[:url])
+  title = params[:title]
+  title = nil unless title && title.size > 0
+
+  url = params[:url]
+  url = nil unless url && url.size > 0
+
+  visit = Visit.new(session[:id], request.ip, url, title)
   visits.add(visit)
 
   log.write("#{visit.time}|#{visit.id}|#{visit.ip}|#{visit.url}|#{visit.title}\n")

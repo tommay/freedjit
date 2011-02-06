@@ -1,5 +1,13 @@
-.visits
+%ul.visits
   - @list.each do |visit|
-    Someone read
-    %a{:href => visit.url}= visit.title
-    = visit.when
+    %li
+      A visitor
+      - if visit.where
+        from
+        %span.visit-where= visit.where
+      viewed
+      - if visit.url
+        %a.visit-link{:href => visit.url}= visit.title || "a page"
+      - else
+        = visit.title || "a page"
+      = visit.when
