@@ -13,7 +13,7 @@ enable :sessions
 set :haml, :escape_html => true
 
 visits = BoundedList.new(1000)
-log = File.open("visits.log", "a")
+log = File.open("log/visits.log", "a")
 
 get "/" do
   haml :index
