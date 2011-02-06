@@ -7,6 +7,8 @@ require "haml"
 # XXX how to set :secret for session cookies?  rack.session.options?
 enable :sessions
 
+set :haml, :escape_html => true
+
 get "/" do
   haml :index
 end
