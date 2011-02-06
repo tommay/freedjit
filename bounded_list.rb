@@ -9,14 +9,14 @@ class BoundedList
 
   def add(value)
     @mutex.synchronize do
-      @list << value
-      @list.shift while @list.size > @max
+      @list.unshift(value)
+      @list = @list[0..@max-1]
     end
   end
 
   def get(n)
     @mutex.synchronize do
-      @list[0..n]
+      @list[0..n-1]
     end
   end
 end

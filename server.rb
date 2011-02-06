@@ -32,6 +32,6 @@ get "/v" do
 end
 
 get "/list" do
-  @list = visits.get(6).reverse
+  @list = visits.get(6)
   haml :list
 end
