@@ -7,8 +7,10 @@ require "haml"
 load "visit.rb"
 load "bounded_list.rb"
 
-# XXX how to set :secret for session cookies?  rack.session.options?
-enable :sessions
+use Rack::Session::Cookie,
+  :key => 'freedjit',
+  :expire_after => 10*365*86400,
+  :secret => 'adk4r2'
 
 set :haml, :escape_html => true
 
@@ -60,6 +62,6 @@ get "/sand" do
 end
 
 get "/clear" do
-  session[:id] = nil
+  session.delete(:id)
   "cleared"
 end
