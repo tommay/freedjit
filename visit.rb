@@ -1,12 +1,17 @@
 class Visit
-  attr_reader :id, :ip, :title, :url, :time
+  attr_reader :id, :ip, :url, :title, :time
 
-  def initialize(id, ip, url, title)
+  def initialize(id, ip, new_visitor, url, title)
     @id = id
     @ip = ip
+    @new_visitor = new_visitor
     @url = url
     @title = title
     @time = Time.now.to_i
+  end
+
+  def new?
+    @new_visitor
   end
 
   def where

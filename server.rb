@@ -26,7 +26,12 @@ get "/" do
 end
 
 get "/v" do
-  session[:id] ||= ("%08x" % rand(1 << 32))
+  id = session[:id]
+  if id.nil?
+    id = "%08x" % rand(1 << 32)
+    session[:id] = id
+    new_visitor = true
+  end
 
   title = params[:title]
   title = nil unless title && title.size > 0
@@ -34,10 +39,10 @@ get "/v" do
   url = params[:url]
   url = nil unless url && url.size > 0
 
-  visit = Visit.new(session[:id], request.ip, url, title)
+  visit = Visit.new(session[:id], request.ip, new_visitor, url, title)
   visits.add(visit)
 
-  log.write("#{visit.time}|#{visit.id}|#{visit.ip}|#{visit.url}|#{visit.title}\n")
+  log.write("#{visit.time}|#{visit.id}|#{visit.ip}|#{visit.new? ? "t" : "f"}|#{visit.url}|#{visit.title}\n")
   log.flush
 
   "ok"
@@ -52,4 +57,9 @@ end
 
 get "/sand" do
   haml :sand
+end
+
+get "/clear" do
+  session[:id] = nil
+  "cleared"
 end
