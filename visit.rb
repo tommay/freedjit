@@ -19,19 +19,18 @@ class Visit
   end
 
   def when
-    delta = Time.now.to_i - @time
-    if delta < 60
-      return ago(delta, "second")
-    end
-    delta /= 60
-    if delta < 60
-      return ago(delta, "minute")
-    end
-    delta /= 60
-    if delta < 24
-      return ago(delta, "hour")
-    end
-    ago(delta, "day")
+    seconds = Time.now.to_i - @time
+    return ago(seconds, "second") if seconds < 60
+    minutes = seconds / 60
+    return ago(minutes, "minute") if minutes < 60
+    hours = minutes / 60
+    return ago(hours, "hour") if hours < 24
+    days = hours / 24
+    return ago(days, "day") if days < 30
+    months = seconds / 2628000
+    return ago(months, "month") if months < 12
+    years = days / 365
+    return ago(years, "year")
   end
 
   def ago(delta, unit)
