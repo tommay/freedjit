@@ -15,6 +15,12 @@ set :haml, :escape_html => true
 visits = BoundedList.new(1000)
 log = File.open("log/visits.log", "a")
 
+helpers do
+  def jsonp(callback, json)
+    "#{callback}('#{json.gsub(/\n/, "").gsub(/'/, "\\\\'")}')"
+  end
+end
+
 get "/" do
   haml :index
 end
@@ -38,8 +44,10 @@ get "/v" do
 end
 
 get "/list" do
+  callback = params[:callback]
   @list = visits.get(6)
-  haml :list
+  content_type 'application/json'
+  jsonp(params[:callback], haml(:list))
 end
 
 get "/sand" do
