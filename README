@@ -1,6 +1,10 @@
+Released under the Apache License, Version 2.0
+http://www.apache.org/licenses/LICENSE-2.0.html
+
 A little project to display some info about web site visitors in a gadget
 suitable, for use in blogger.
 
-One of my first efforts in front-end web engineering, woohoo.
+One of my first efforts in front-end web engineering, woohoo.  Incredibly
+pre-release.
 
 Should have the maxmind ip -> geo database incorporated soon.
