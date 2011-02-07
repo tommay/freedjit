@@ -3,8 +3,7 @@
     %script{:src => "http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js", :type => "text/javascript"}
   %body
     .test Some stuff
-    :javascript
-      $.get("http://localhost:4567/v", { title: document.title, url: document.URL })
     #list
-    :javascript
-      setInterval(function(){$("#list").load("http://localhost:4567/list")}, 5000)
+      :javascript
+        $.get("http://localhost:4567/v", { title: document.title, url: document.URL })
+        setInterval(function(){$("#list").load("http://localhost:4567/list")}, 5000)
