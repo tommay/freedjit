@@ -28,10 +28,8 @@ get "/" do
 end
 
 get "/v" do
-  id = session[:id]
-  if id.nil?
-    id = "%08x" % rand(1 << 32)
-    session[:id] = id
+  if session[:id].nil?
+    session[:id] = "%08x" % rand(1 << 32)
     new_visitor = true
   end
 
