@@ -1,14 +1,16 @@
 function freedjit(id) {
     $.get("http://localhost:4567/v",
-	  { title: document.title, url: document.URL });
+        { title: document.title, url: document.URL },
+        function(data) {},
+        "jsonp");
     setInterval(
         function() {
-	    $.ajax({
-                url: "http://localhost:4567/list",
-                dataType: "jsonp",
-                success: function(data) {
+	    $.get(
+                "http://localhost:4567/list",
+                {},
+                function(data) {
                     $(id).html(data);
-                }
-            });
+                },
+                "jsonp");
         }, 5000);
 }

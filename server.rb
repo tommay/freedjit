@@ -45,11 +45,10 @@ get "/v" do
   log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}\n")
   log.flush
 
-  "ok"
+  jsonp(params[:callback], "ok")
 end
 
 get "/list" do
-  callback = params[:callback]
   @list = visits.get(6)
   content_type 'application/json'
   jsonp(params[:callback], haml(:list))
