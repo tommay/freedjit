@@ -27,7 +27,7 @@ get "/" do
   haml :index
 end
 
-get "/v" do
+get "/visit" do
   if session[:id].nil?
     session[:id] = "%08x" % rand(1 << 32)
     new_visitor = true

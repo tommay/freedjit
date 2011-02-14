@@ -1,5 +1,5 @@
 function freedjit(id) {
-    $.get("http://localhost:4567/v",
+    $.get("http://localhost:4567/visit",
         { title: document.title, url: document.URL },
         function(data) {},
         "jsonp");
