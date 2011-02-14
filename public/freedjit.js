@@ -6,7 +6,9 @@ function freedjit(id) {
 	    $.ajax({
                 url: "http://localhost:4567/list",
                 dataType: "jsonp",
-                success: function(data) { $(id).html(data); }
+                success: function(data) {
+                    $(id).html(data);
+                }
             });
         }, 5000);
 }
