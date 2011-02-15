@@ -5,7 +5,7 @@
       - if visit.where
         from
         %span.visit-where= visit.where
-      viewed
+      visit.verb
       - if visit.url
         %a.visit-link{:href => visit.url}= visit.display_title
       - else

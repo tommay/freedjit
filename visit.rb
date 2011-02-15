@@ -37,6 +37,14 @@ class Visit
     "#{delta} #{unit}#{delta == 1 ? "" : "s"} ago"
   end
 
+  def verb
+    if url && url =~ %r{/search/}
+      "searched"
+    else
+      "viewed"
+    end
+  end
+
   def display_title
     if title
       # Get rid of the blog title (everything before the first colon), if any
