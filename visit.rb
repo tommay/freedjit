@@ -15,7 +15,7 @@ class Visit
   end
 
   def where
-    @ip
+    nil # @ip
   end
 
   def when
