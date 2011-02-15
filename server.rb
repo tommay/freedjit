@@ -28,8 +28,8 @@ get "/" do
 end
 
 get "/visit" do
-  if session[:id].nil?
-    session[:id] = "%08x" % rand(1 << 32)
+  if session[:id].nil? || session[:id].size != 16
+    session[:id] = "%16x" % rand(1 << 64)
     new_visitor = true
   end
 
