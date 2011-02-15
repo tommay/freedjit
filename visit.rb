@@ -36,4 +36,13 @@ class Visit
   def ago(delta, unit)
     "#{delta} #{unit}#{delta == 1 ? "" : "s"} ago"
   end
+
+  def display_title
+    if title
+      # Get rid of the blog title (everything before the first colon), if any
+      title.sub(/^.*?:\s*/, "")
+    else
+      "a page"
+    end
+  end
 end

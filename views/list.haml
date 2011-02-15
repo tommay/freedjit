@@ -7,7 +7,7 @@
         %span.visit-where= visit.where
       viewed
       - if visit.url
-        %a.visit-link{:href => visit.url}= visit.title || "a page"
+        %a.visit-link{:href => visit.url}= visit.display_title
       - else
-        = visit.title || "a page"
+        = visit.display_title
       = visit.when
