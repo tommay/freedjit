@@ -42,7 +42,7 @@ get "/visit" do
   visit = Visit.new(session[:id], request.ip, new_visitor, url, title)
   visits.add(visit)
 
-  log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}\n")
+  log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{request.user_agent}\n")
   log.flush
 
   jsonp(params[:callback], "ok")
