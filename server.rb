@@ -29,7 +29,7 @@ end
 
 get "/visit" do
   if session[:id].nil? || session[:id].size != 16
-    session[:id] = "%16x" % rand(1 << 64)
+    session[:id] = "%.16x" % rand(1 << 64)
     new_visitor = true
   end
 
