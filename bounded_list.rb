@@ -14,9 +14,9 @@ class BoundedList
     end
   end
 
-  def get(n)
+  def all
     @mutex.synchronize do
-      @list[0..n-1]
+      @list.clone
     end
   end
 end

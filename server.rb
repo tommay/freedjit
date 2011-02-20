@@ -82,7 +82,9 @@ end
 
 get "/list" do
   if key_ok?
-    @list = visits.get(6)
+    id = session[:id]
+    ip = request.ip
+    @list = visits.all.select{|v| id ? v.id != id : v.ip != ip}[0..5]
   else
     @list = []
   end
