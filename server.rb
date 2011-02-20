@@ -3,6 +3,7 @@
 require "rubygems"
 require "sinatra"
 require "haml"
+require "geoip"
 
 load "visit.rb"
 load "bounded_list.rb"
@@ -17,11 +18,16 @@ use Rack::Session::Cookie,
 #set :haml, :escape_html => true
 
 visits = BoundedList.new(1000)
+geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
 log = File.open("log/visits.log", "a")
 
 helpers do
   def jsonp(callback, json)
     "#{callback}('#{json.gsub(/\n/, "").gsub(/'/, "\\\\'")}')"
+  end
+
+  def string(val)
+    (val && val.size > 0) ? val : nil
   end
 end
 
@@ -35,16 +41,22 @@ get "/visit" do
     new_visitor = true
   end
 
-  title = params[:title]
-  title = nil unless title && title.size > 0
+  geo = geoip.city(request.ip)
+  geo = geo ? geo.to_hash : {}
 
-  url = params[:url]
-  url = nil unless url && url.size > 0
-
-  visit = Visit.new(session[:id], request.ip, new_visitor, url, title)
+  visit = Visit.new(
+     :id => session[:id],
+     :ip => request.ip,
+     :new_visitor => new_visitor,
+     :url => string(params[:url]),
+     :title => string(params[:title]),
+     :city => (geo[:city_name].encode("UTF-8") rescue nil),
+     :region => geo[:region_name],
+     :country => geo[:country_name],
+     :country_code => geo[:country_code2])
   visits.add(visit)
 
-  log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{request.user_agent}\n")
+  log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
   log.flush
 
   jsonp(params[:callback], "ok")

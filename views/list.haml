@@ -5,6 +5,8 @@
       - if visit.where
         from
         %span.visit-where= visit.where
+        - if visit.flag
+          %img.visit-flag{:src => request.server XXX visit.flag}
       = visit.verb
       - if visit.url
         %a.visit-link{:href => visit.url}= visit.display_title

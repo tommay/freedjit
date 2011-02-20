@@ -1,13 +1,18 @@
 class Visit
-  attr_reader :id, :ip, :url, :title, :time
+  attr_reader :id, :ip, :url, :title, :time, :city, :region,
+    :country, :country_code
 
-  def initialize(id, ip, new_visitor, url, title, time = Time.now.to_i)
-    @id = id
-    @ip = ip
-    @new_visitor = new_visitor
-    @url = url
-    @title = title
-    @time = time
+  def initialize(args)
+    @id = args[:id]
+    @ip = args[:ip]
+    @new_visitor = args[:new_visitor]
+    @url = args[:url]
+    @title = args[:title]
+    @city = args[:city]
+    @region = args[:region]
+    @country = args[:country]
+    @country_code = args[:country_code]
+    @time = args[:time] || Time.now.to_i
   end
 
   def new?
@@ -15,7 +20,26 @@ class Visit
   end
 
   def where
-    nil # @ip
+    result = ""
+    if @city
+      result << @city
+    end
+    if ["US", "CA"].include?(@country_code) && @region
+      result << ", " if result != ""
+      result << @region
+    end
+    if @country
+      result << ", " if result != ""
+      result << @country
+    end
+    if result == ""
+      result = nil
+    end
+    result
+  end
+
+  def flag
+    "#{@iso_country}.png" if @iso_country
   end
 
   def when
