@@ -7,10 +7,12 @@ require "haml"
 load "visit.rb"
 load "bounded_list.rb"
 
+secret = ENV["F_SECRET"]
+
 use Rack::Session::Cookie,
   :key => 'freedjit',
   :expire_after => 10*365*86400,
-  :secret => 'adk4r2'
+  :secret => secret
 
 #set :haml, :escape_html => true
 
