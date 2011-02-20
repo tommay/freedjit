@@ -11,6 +11,7 @@ load "bounded_list.rb"
 
 set :key, ENV["F_KEY"]
 set :host, ENV["F_HOST"]
+set :password, ENV["F_PASSWORD"]
 secret = ENV["F_SECRET"]
 
 use Rack::Session::Cookie,
@@ -52,7 +53,7 @@ end
 get "/visit" do
   url = params[:url]
   url.sub!(%r{://www\.}, "://") if url
-  if key_ok? && url_ok?(url)
+  if key_ok? && url_ok?(url) && !session[:ignore]
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -91,11 +92,22 @@ get "/list" do
   jsonp(params[:callback], haml(:list))
 end
 
+get "/ignore" do
+  if params[:password] == settings.password
+    session[:ignore] = true
+  else
+    session.delete(:ignore)
+  end
+  "ok"
+end
+
 get "/sand" do
   haml :sand
 end
 
 get "/clear" do
-  session.delete(:id)
+  if params[:password] == settings.password
+    session.delete(:id)
+  end
   "cleared"
 end
