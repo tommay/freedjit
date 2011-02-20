@@ -4,11 +4,13 @@ require "rubygems"
 require "sinatra"
 require "haml"
 require "geoip"
+require "uri"
 
 load "visit.rb"
 load "bounded_list.rb"
 
 set :key, ENV["F_KEY"]
+set :host, ENV["F_HOST"]
 secret = ENV["F_SECRET"]
 
 use Rack::Session::Cookie,
@@ -28,12 +30,17 @@ helpers do
     "#{callback}('#{json.gsub(/\n/, "").gsub(/'/, "\\\\'")}')"
   end
 
-  def string(val)
+  def string_or_nil(val)
     (val && val.size > 0) ? val : nil
   end
 
   def key_ok?
     params[:key] == settings.key
+  end
+
+  def host_ok?(url)
+    uri = URI.parse(url) rescue nil
+    uri.respond_to?(:host) && uri.host == settings. host
   end
 end
 
@@ -42,7 +49,7 @@ get "/" do
 end
 
 get "/visit" do
-  if key_ok?
+  if key_ok? && host_ok?(params[:url])
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -55,8 +62,8 @@ get "/visit" do
        :id => session[:id],
        :ip => request.ip,
        :new_visitor => new_visitor,
-       :url => string(params[:url]),
-       :title => string(params[:title]),
+       :url => string_or_nil(params[:url]),
+       :title => string_or_nil(params[:title]),
        :city => (geo[:city_name].encode("UTF-8") rescue nil),
        :region => geo[:region_name],
        :country => geo[:country_name],
