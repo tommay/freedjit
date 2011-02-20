@@ -5,6 +5,7 @@ require "sinatra"
 require "haml"
 require "geoip"
 require "uri"
+require "set"
 
 load "visit.rb"
 load "bounded_list.rb"
@@ -13,6 +14,10 @@ set :key, ENV["F_KEY"]
 set :host, ENV["F_HOST"]
 set :password, ENV["F_PASSWORD"]
 secret = ENV["F_SECRET"]
+
+set :flags, (Dir["public/images/flags/*.gif"].map do |name|
+  File.basename(name, ".gif").downcase
+end.to_set)
 
 use Rack::Session::Cookie,
   :key => 'freedjit',
@@ -43,6 +48,14 @@ helpers do
     uri = URI.parse(url) rescue nil
     uri.respond_to?(:host) && uri.host == settings.host &&
       uri.respond_to?(:path) && uri.path !~ %r{^/b/}
+  end
+
+  def flag_url(country_code)
+    country_code = country_code.downcase
+    if settings.flags.include?(country_code)
+      port = ":#{request.port}" unless request.port == 80
+      "http://#{request.host}#{port}/images/flags/#{country_code.downcase}.gif"
+    end
   end
 end
 
