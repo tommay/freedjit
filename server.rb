@@ -8,6 +8,7 @@ require "geoip"
 load "visit.rb"
 load "bounded_list.rb"
 
+set :key, ENV["F_KEY"]
 secret = ENV["F_SECRET"]
 
 use Rack::Session::Cookie,
@@ -23,11 +24,16 @@ log = File.open("log/visits.log", "a")
 
 helpers do
   def jsonp(callback, json)
+    content_type "application/json"
     "#{callback}('#{json.gsub(/\n/, "").gsub(/'/, "\\\\'")}')"
   end
 
   def string(val)
     (val && val.size > 0) ? val : nil
+  end
+
+  def key_ok?
+    params[:key] == settings.key
   end
 end
 
@@ -36,35 +42,40 @@ get "/" do
 end
 
 get "/visit" do
-  if session[:id].nil? || session[:id].size != 16
-    session[:id] = "%.16x" % rand(1 << 64)
-    new_visitor = true
+  if key_ok?
+    if session[:id].nil? || session[:id].size != 16
+      session[:id] = "%.16x" % rand(1 << 64)
+      new_visitor = true
+    end
+
+    geo = geoip.city(request.ip)
+    geo = geo ? geo.to_hash : {}
+
+    visit = Visit.new(
+       :id => session[:id],
+       :ip => request.ip,
+       :new_visitor => new_visitor,
+       :url => string(params[:url]),
+       :title => string(params[:title]),
+       :city => (geo[:city_name].encode("UTF-8") rescue nil),
+       :region => geo[:region_name],
+       :country => geo[:country_name],
+       :country_code => geo[:country_code2])
+    visits.add(visit)
+
+    log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
+    log.flush
   end
-
-  geo = geoip.city(request.ip)
-  geo = geo ? geo.to_hash : {}
-
-  visit = Visit.new(
-     :id => session[:id],
-     :ip => request.ip,
-     :new_visitor => new_visitor,
-     :url => string(params[:url]),
-     :title => string(params[:title]),
-     :city => (geo[:city_name].encode("UTF-8") rescue nil),
-     :region => geo[:region_name],
-     :country => geo[:country_name],
-     :country_code => geo[:country_code2])
-  visits.add(visit)
-
-  log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
-  log.flush
 
   jsonp(params[:callback], "ok")
 end
 
 get "/list" do
-  @list = visits.get(6)
-  content_type 'application/json'
+  if key_ok?
+    @list = visits.get(6)
+  else
+    @list = []
+  end
   jsonp(params[:callback], haml(:list))
 end
 

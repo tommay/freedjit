@@ -1,13 +1,13 @@
-function freedjit(id) {
+function freedjit(id, key) {
     $.get("http://localhost:4567/visit",
-        { title: document.title, url: document.URL },
+        { key: key, title: document.title, url: document.URL },
         function(data) {},
         "jsonp");
     setInterval(
         function() {
 	    $.get(
                 "http://localhost:4567/list",
-                {},
+                { key: key },
                 function(data) {
                     $(id).html(data);
                 },
