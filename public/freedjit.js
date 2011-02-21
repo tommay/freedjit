@@ -12,5 +12,5 @@ function freedjit(id, key) {
                     $(id).html(data);
                 },
                 "jsonp");
-        }, 5000);
+        }, 60000);
 }
