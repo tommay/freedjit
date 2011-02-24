@@ -61,18 +61,16 @@ class Visit
     "#{delta} #{unit}#{delta == 1 ? "" : "s"} ago"
   end
 
-  def verb
-    if url && url =~ %r{/search/}
-      "searched"
-    else
-      "viewed"
-    end
-  end
-
   def display_title
-    if title
+    if url && url =~ %r{\?updated-min=(\d{4})}
+      $1
+    elsif title
       # Get rid of the blog title (everything before the first colon), if any
-      title.sub(/^.*?:\s*/, "")
+      result = title.sub(/^.*?:\s*/, "")
+      if url && url =~ %r{/search/label/}
+        result = "tag <span class='visit-category'>#{result}</span>"
+      end
+      result
     else
       "a page"
     end

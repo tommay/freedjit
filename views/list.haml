@@ -8,7 +8,7 @@
         - flag = flag_url(visit.country_code)
         - if flag
           %img.visit-flag{:src => flag}
-      = visit.verb
+      viewed
       - if visit.url
         %a.visit-link{:href => visit.url}= visit.display_title
       - else
