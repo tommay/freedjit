@@ -49,7 +49,9 @@ get "/" do
 end
 
 get "/visit" do
-  if key_ok? && host_ok?(params[:url])
+  url = params[:url]
+  url.sub!(%r{://www\.}, "://") if url
+  if key_ok? && host_ok?(url)
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -62,7 +64,7 @@ get "/visit" do
        :id => session[:id],
        :ip => request.ip,
        :new_visitor => new_visitor,
-       :url => string_or_nil(params[:url]),
+       :url => url,
        :title => string_or_nil(params[:title]),
        :city => (geo[:city_name].encode("UTF-8") rescue nil),
        :region => geo[:region_name],
