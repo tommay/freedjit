@@ -30,6 +30,23 @@ visits = BoundedList.new(1000)
 geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
 log = File.open("log/visits.log", "a")
 
+File.open("log/visits.log").each do |line|
+  s = line.chomp.split(/\|/)
+
+  keys = [:time, :id, :new_visitor, :ip, :url, :title,
+          :city, :region, :country, :country_code, :user_agent]
+
+  v = {}
+  keys.each_with_index do |key, i|
+    v[key] = s[i]
+  end
+
+  v[:new_visitor] = v[:new_visitor] == "t"
+  v[:time] = v[:time].to_i
+
+  visits.add(Visit.new(v))
+end
+
 helpers do
   def jsonp(callback, json)
     content_type "application/json"
