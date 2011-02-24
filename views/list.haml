@@ -9,8 +9,12 @@
         - if flag
           %img.visit-flag{:src => flag}
       viewed
+      - title = visit.display_title
+      - if title.is_a?(Array)
+        = title[0]
+        - title = title[1]
       - if visit.url
-        %a.visit-link{:href => visit.url}= visit.display_title
+        %a.visit-link{:href => visit.url}= title
       - else
-        = visit.display_title
+        = title
       = visit.when
