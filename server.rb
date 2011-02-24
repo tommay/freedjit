@@ -38,9 +38,10 @@ helpers do
     params[:key] == settings.key
   end
 
-  def host_ok?(url)
+  def url_ok?(url)
     uri = URI.parse(url) rescue nil
-    uri.respond_to?(:host) && uri.host == settings. host
+    uri.respond_to?(:host) && uri.host == settings.host &&
+      uri.respond_to?(:path) && uri.path !~ %r{^/b/}
   end
 end
 
@@ -51,7 +52,7 @@ end
 get "/visit" do
   url = params[:url]
   url.sub!(%r{://www\.}, "://") if url
-  if key_ok? && host_ok?(url)
+  if key_ok? && url_ok?(url)
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
