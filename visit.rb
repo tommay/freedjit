@@ -1,3 +1,5 @@
+require "uri"
+
 class Visit
   attr_reader :id, :ip, :url, :title, :time, :city, :region,
     :country, :country_code
@@ -73,6 +75,38 @@ class Visit
       result
     else
       "a page"
+    end
+  end
+
+  @@whitelist_params = [
+    "updated-min", "updated-max", "max-results", "reverse-paginate"
+  ]
+
+  def link_url
+    if url
+      u = URI.parse(url)
+      klass = (u.scheme == "https") ? URI::HTTPS : URI::HTTP;
+      # Don't include the fragment.
+      klass.build(:host => u.host, :port => u.port, :path => u.path,
+                  :query => sanitize_query(u.query))
+    end
+  end
+
+  def sanitize_query(q)
+    if q
+      q = q.split("&").map do |p|
+        param = p.split("=")
+        if @@whitelist_params.include?(param.first)
+          if param.first == "max-results"
+            "max-results=3"
+          else
+            param.join("=")
+          end
+        else
+          nil
+        end
+      end.compact.join("&")
+      q == "" ? nil : q
     end
   end
 end

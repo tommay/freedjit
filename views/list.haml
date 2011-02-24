@@ -13,8 +13,8 @@
       - if title.is_a?(Array)
         = title[0]
         - title = title[1]
-      - if visit.url
-        %a.visit-link{:href => visit.url}= title
+      - if visit.link_url
+        %a.visit-link{:href => visit.link_url}= title
       - else
         = title
       = visit.when
