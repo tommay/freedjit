@@ -12,7 +12,7 @@ use Rack::Session::Cookie,
   :expire_after => 10*365*86400,
   :secret => 'adk4r2'
 
-set :haml, :escape_html => true
+#set :haml, :escape_html => true
 
 visits = BoundedList.new(1000)
 log = File.open("log/visits.log", "a")
