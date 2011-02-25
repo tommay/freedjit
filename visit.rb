@@ -70,7 +70,7 @@ class Visit
       # Get rid of the blog title (everything before the first colon), if any
       result = title.sub(/^.*?:\s*/, "")
       if url && url =~ %r{/search/label/}
-        result = ["tag", "<span class='visit-category'>#{result}</span>"]
+        result = ["tag", result]
       end
       result
     else
