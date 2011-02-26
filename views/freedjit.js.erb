@@ -8,8 +8,8 @@
         $.get(
             "http://<%= @server %>/list",
             { key: key },
-            function(data) {
-                $(id).html(data);
+            function(response) {
+                $(id).html(response.visits);
             },
             "jsonp");
     };

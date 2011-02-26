@@ -2,8 +2,10 @@
 
 require "rubygems"
 require "sinatra"
+require "rack/contrib"
 require "haml"
 require "erb"
+require "json"
 require "geoip"
 require "uri"
 require "set"
@@ -25,6 +27,8 @@ use Rack::Session::Cookie,
   :key => 'freedjit',
   :expire_after => 10*365*86400,
   :secret => secret
+
+use Rack::JSONP
 
 #set :haml, :escape_html => true
 
@@ -50,11 +54,6 @@ File.open("log/visits.log").each do |line|
 end
 
 helpers do
-  def jsonp(callback, json)
-    content_type "application/json"
-    "#{callback}('#{json.gsub(/\n/, "").gsub(/'/, "\\\\'")}')"
-  end
-
   def string_or_nil(val)
     (val && val.size > 0) ? val : nil
   end
@@ -125,7 +124,8 @@ get "/visit" do
     log.flush
   end
 
-  jsonp(params[:callback], "ok")
+  content_type :json, :charset => "utf-8"
+  JSON.fast_generate(:ok => true)
 end
 
 get "/list" do
@@ -140,7 +140,9 @@ get "/list" do
       break if @list.size == 6
     end
   end
-  jsonp(params[:callback], haml(:list))
+
+  content_type :json, :charset => "utf-8"
+  JSON.fast_generate(:visits => haml(:list))
 end
 
 get "/ignore" do
