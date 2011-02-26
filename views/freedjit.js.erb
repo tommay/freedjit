@@ -1,4 +1,4 @@
-function freedjit(id, key) {
+function <%= @name %>(id, key) {
     $.get(
         "http://localhost:4567/visit",
         { key: key, title: document.title, url: document.URL },

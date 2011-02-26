@@ -3,6 +3,7 @@
 require "rubygems"
 require "sinatra"
 require "haml"
+require "erb"
 require "geoip"
 require "uri"
 require "set"
@@ -10,6 +11,7 @@ require "set"
 load "visit.rb"
 load "bounded_list.rb"
 
+set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
 set :host, ENV["F_HOST"]
 set :password, ENV["F_PASSWORD"]
@@ -78,6 +80,13 @@ end
 
 get "/" do
   haml :index
+end
+
+get "/#{settings.name}.js" do
+  @name = settings.name
+  content_type :js
+  last_modified File.stat("views/freedjit.js.erb").mtime
+  erb(:"freedjit.js")
 end
 
 get "/visit" do
