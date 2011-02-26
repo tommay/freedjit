@@ -1,4 +1,4 @@
-function <%= @name %>(id, key) {
+(function(id, key) {
     $.get(
         "http://<%= @server %>/visit",
         { key: key, title: document.title, url: document.URL },
@@ -15,4 +15,4 @@ function <%= @name %>(id, key) {
     };
     list();
     setInterval(list, 60000);
-}
+})('#list', '<%= @key %>')

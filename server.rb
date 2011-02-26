@@ -83,6 +83,8 @@ get "/" do
 end
 
 get "/#{settings.name}.js" do
+  @key = params[:key]
+  halt 404 unless @key && @key =~ /[a-zA-Z0-9\-]+/
   @name = settings.name
   @server = request.host
   @server << ":#{request.port}" if request.port != 80
