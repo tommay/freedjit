@@ -17,6 +17,14 @@ class Visit
     @time = args[:time] || Time.now.to_i
   end
 
+  def same_visitor?(other)
+    if self.new? || other.new?
+      self.ip == other.ip
+    else
+      self.id == other.id
+    end
+  end
+
   def new?
     @new_visitor
   end

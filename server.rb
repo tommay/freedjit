@@ -112,12 +112,16 @@ get "/visit" do
 end
 
 get "/list" do
+  @list = []
   if key_ok?
     id = session[:id]
     ip = request.ip
-    @list = visits.all.select{|v| id ? v.id != id : v.ip != ip}[0..5]
-  else
-    @list = []
+    visits.all.select{|v| id ? v.id != id : v.ip != ip}.each do |v|
+      @list << v unless @list.any? do |e|
+        e.same_visitor?(v) && e.display_title == v.display_title
+      end
+      break if @list.size == 6
+    end
   end
   jsonp(params[:callback], haml(:list))
 end
