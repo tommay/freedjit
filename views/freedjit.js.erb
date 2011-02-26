@@ -1,12 +1,12 @@
 function <%= @name %>(id, key) {
     $.get(
-        "http://localhost:4567/visit",
+        "http://<%= @server %>/visit",
         { key: key, title: document.title, url: document.URL },
         function(data) {},
         "jsonp");
     var list = function() {
         $.get(
-            "http://localhost:4567/list",
+            "http://<%= @server %>/list",
             { key: key },
             function(data) {
                 $(id).html(data);

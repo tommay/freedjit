@@ -84,6 +84,8 @@ end
 
 get "/#{settings.name}.js" do
   @name = settings.name
+  @server = request.host
+  @server << ":#{request.port}" if request.port != 80
   content_type :js
   last_modified File.stat("views/freedjit.js.erb").mtime
   erb(:"freedjit.js")
