@@ -99,7 +99,10 @@ end
 get "/visit" do
   url = params[:url]
   url.sub!(%r{://www\.}, "://") if url
-  if key_ok? && url_ok?(url) && !session[:ignore]
+
+  @ok = key_ok? && url_ok?(url)
+
+  if @ok && !session[:ignore]
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -125,7 +128,7 @@ get "/visit" do
   end
 
   content_type :json, :charset => "utf-8"
-  JSON.fast_generate(:ok => true)
+  erb(:"visit.js")
 end
 
 get "/list" do
@@ -141,8 +144,10 @@ get "/list" do
     end
   end
 
+  @html = haml(:list)
+
   content_type :json, :charset => "utf-8"
-  JSON.fast_generate(:visits => haml(:list))
+  erb(:"list.js")
 end
 
 get "/ignore" do

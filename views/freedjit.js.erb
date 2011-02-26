@@ -1,18 +1,9 @@
-(function(id, key) {
+(function(key, server) {
     $.get(
-        "http://<%= @server %>/visit",
+        "http://" + server + "/visit",
         { key: key, title: document.title, url: document.URL },
-        function(data) {},
+        function(response) {
+            response.apply(key, server);
+        },
         "jsonp");
-    var list = function() {
-        $.get(
-            "http://<%= @server %>/list",
-            { key: key },
-            function(response) {
-                $(id).html(response.visits);
-            },
-            "jsonp");
-    };
-    list();
-    setInterval(list, 60000);
-})('#list', '<%= @key %>')
+})('<%= @key %>', '<%= @server %>')

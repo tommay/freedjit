@@ -1,0 +1,5 @@
+{
+    apply: function() {
+        $('#list').html('<%= @html.gsub(/'/, "\\\\'").gsub(/\n/, "") %>');
+    }
+}
