@@ -78,6 +78,10 @@ helpers do
   end
 end
 
+before do
+  response["P3P"] = "CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\""
+end
+
 get "/" do
   haml :index
 end
