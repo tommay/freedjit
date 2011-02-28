@@ -5,6 +5,7 @@ require "sinatra"
 require "rack/contrib"
 require "haml"
 require "erb"
+require "clogger"
 require "json"
 require "geoip"
 require "uri"
@@ -22,6 +23,12 @@ secret = ENV["F_SECRET"]
 set :flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
+
+disable :logging
+
+use Clogger,
+  :logger => $stderr,
+  :format => Clogger::Format::Combined
 
 use Rack::Session::Cookie,
   :key => 'freedjit',
