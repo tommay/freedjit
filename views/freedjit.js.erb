@@ -1,9 +1,9 @@
-(function(key, server) {
+(function (key, server) {
     $.get(
         "http://" + server + "/visit",
         { key: key, title: document.title, url: document.URL },
-        function(response) {
+        function (response) {
             response.apply(key, server);
         },
         "jsonp");
-})('<%= @key %>', '<%= @server %>')
+}('<%= @key %>', '<%= @server %>'));

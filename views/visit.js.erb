@@ -1,21 +1,21 @@
 {
 <% if @ok %>
-    apply: function(key, server) {
-        me = this;
-        (function(list) {
+    apply: function (key, server) {
+        (function (list) {
             list();
             setInterval(list, 60000);
-        })(function() {
+        }(function () {
             $.get(
                 "http://" + server + "/list",
                 { key: key },
-                function(response) {
-	            response.apply();
+                function (response) {
+                    response.apply();
                 },
-                "jsonp");
-        })
+                "jsonp"
+            );
+        }));
     }
 <% else %>
-    apply: function(key, server) {}
+    apply: function (key, server) {}
 <% end %>
 }
