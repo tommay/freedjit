@@ -30,10 +30,10 @@ use Clogger,
   :logger => $stderr,
   :format => Clogger::Format::Combined
 
-use Rack::Session::Cookie,
-  :key => 'freedjit',
-  :expire_after => 10*365*86400,
-  :secret => secret
+#use Rack::Session::Cookie,
+#  :key => 'freedjit',
+#  :expire_after => 10*365*86400,
+#  :secret => secret
 
 use Rack::JSONP
 
@@ -109,9 +109,11 @@ get "/visit" do
 
   @ok = key_ok? && url_ok?(url)
 
+  session = {} # XXX
+
   if @ok && !session[:ignore]
     if session[:id].nil? || session[:id].size != 16
-      session[:id] = "%.16x" % rand(1 << 64)
+      session[:id] = "none" # XXX "%.16x" % rand(1 << 64)
       new_visitor = true
     end
 
@@ -139,6 +141,7 @@ get "/visit" do
 end
 
 get "/list" do
+  session = {}
   @list = []
   if key_ok?
     id = session[:id]
@@ -158,6 +161,7 @@ get "/list" do
 end
 
 get "/ignore" do
+  session = {}
   if params[:password] == settings.password
     session[:ignore] = true
   else
@@ -171,6 +175,7 @@ get "/sand" do
 end
 
 get "/clear" do
+  session = {}
   if params[:password] == settings.password
     session.delete(:id)
   end

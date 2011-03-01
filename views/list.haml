@@ -1,7 +1,7 @@
 %ul.visits
   - @list.each do |visit|
     %li
-      A #{visit.new? ? "new" : "returning"} visitor
+      A visitor
       - if visit.where
         from
         %span.visit-where= visit.where
