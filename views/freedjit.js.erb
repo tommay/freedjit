@@ -1,7 +1,13 @@
 (function (key, server) {
     $.get(
         "http://" + server + "/visit",
-        { key: key, title: document.title, url: document.URL },
+        {
+            key: key,
+            title: document.title,
+            url: document.URL,
+            ref: document.referrer || "",
+            t: $(".post-title a").html() || ""
+        },
         function (response) {
             response.apply(key, server);
         },
