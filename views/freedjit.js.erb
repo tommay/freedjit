@@ -1,4 +1,5 @@
 (function (key, server) {
+    var a = $(".post-title a");
     $.get(
         "http://" + server + "/visit",
         {
@@ -6,7 +7,8 @@
             title: document.title,
             url: document.URL,
             ref: document.referrer || "",
-            t: $(".post-title a").html() || ""
+            t: a.html() || "",
+            h: a.attr("href") || ""
         },
         function (response) {
             response.apply(key, server);
