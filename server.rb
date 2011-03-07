@@ -104,10 +104,19 @@ get "/#{settings.name}.js" do
 end
 
 get "/visit" do
+  # We test url just to filter out /b/.  Should do this better.
+
   url = params[:url]
   url.sub!(%r{://www\.}, "://") if url
 
-  @ok = key_ok? && url_ok?(url)
+  h = params[:h]
+  h = params[:url] if !h || h == ""
+  h.sub!(%r{://www\.}, "://") if h
+
+  title = params[:t]
+  title = params[:title] if !title || title == ""
+
+  @ok = key_ok? && url_ok?(url) && url_ok?(h)
 
   session = {} # XXX
 
@@ -124,8 +133,8 @@ get "/visit" do
        :id => session[:id],
        :ip => request.ip,
        :new_visitor => new_visitor,
-       :url => url,
-       :title => string_or_nil(params[:title]),
+       :url => h,
+       :title => string_or_nil(title),
        :city => (geo[:city_name].encode("UTF-8") rescue nil),
        :region => geo[:region_name],
        :country => geo[:country_name],
