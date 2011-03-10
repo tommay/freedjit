@@ -72,15 +72,16 @@ class Visit
   end
 
   def display_title
-    if url && url =~ %r{\?updated-min=(\d{4})}
-      $1
-    elsif title
+    case
+    when title
       # Get rid of the blog title (everything before the first colon), if any
       result = title.sub(/^.*?:\s*/, "")
       if url && url =~ %r{/search/label/}
         result = ["posts tagged", result]
       end
       result
+    when url && url =~ %r{\?updated-min=(\d{4})}
+      $1
     else
       "a page"
     end
