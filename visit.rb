@@ -114,8 +114,12 @@ class Visit
         else
           nil
         end
-      end.compact.join("&")
-      q == "" ? nil : q
+      end.compact
+    else
+      q = []
     end
+    q << "fav=r"
+    q = q.join("&")
+    q == "" ? nil : q
   end
 end
