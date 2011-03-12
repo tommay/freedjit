@@ -30,6 +30,7 @@ class Visit
   end
 
   def where
+    return nil if [ "A1", "A2", "O2" ].include?(@country_code)
     result = ""
     if @city
       result << @city
