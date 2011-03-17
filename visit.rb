@@ -41,7 +41,16 @@ class Visit
     end
     if @country
       result << ", " if result != ""
-      result << @country
+      result << case @country
+        when /(.*), (.*)/
+          if $1 == "Taiwan"
+            $1
+          else
+            "#{$2} #{$1}"
+          end
+        else
+          @country
+        end
     end
     if result == ""
       result = nil
