@@ -44,7 +44,7 @@ geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
 log = File.open("log/visits.log", "a")
 
 File.open("log/visits.log").each do |line|
-  s = line.chomp.split(/\|/)
+  s = line.chomp.split(/\|/) rescue next
 
   keys = [:time, :id, :new_visitor, :ip, :url, :title,
           :city, :region, :country, :country_code, :user_agent]
