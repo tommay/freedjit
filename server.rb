@@ -32,7 +32,8 @@ use UnXF
 
 use Clogger,
   :logger => $stderr,
-  :format => Clogger::Format::Combined
+  :format => Clogger::Format::Combined,
+  :reentrant => true
 
 #use Rack::Session::Cookie,
 #  :key => 'freedjit',
