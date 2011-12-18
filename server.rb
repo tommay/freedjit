@@ -18,6 +18,7 @@ load "bounded_list.rb"
 set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
 set :host, ENV["F_HOST"]
+set :dir, ENV["F_DIR"] || "log"
 set :password, ENV["F_PASSWORD"]
 secret = ENV["F_SECRET"]
 
@@ -46,9 +47,9 @@ use Rack::JSONP
 
 visits = BoundedList.new(1000)
 geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
-log = File.open("log/visits.log", "a")
+log = File.open("#{settings.dir}/visits.log", "a")
 
-File.open("log/visits.log").each do |line|
+File.open("#{settings.dir}/visits.log").each do |line|
   s = line.chomp.split(/\|/) rescue next
 
   keys = [:time, :id, :new_visitor, :ip, :url, :title,
