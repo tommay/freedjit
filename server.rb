@@ -3,9 +3,10 @@
 require "rubygems"
 require "sinatra"
 require "rack/contrib"
+require "unxf"
+require "clogger"
 require "haml"
 require "erb"
-require "clogger"
 require "json"
 require "geoip"
 require "uri"
@@ -25,6 +26,9 @@ set :flags, (Dir["public/images/flags/*.gif"].map do |name|
 end.to_set)
 
 disable :logging
+
+# Set REMOTE_ADDR from X-Forwarded-For.
+use UnXF
 
 use Clogger,
   :logger => $stderr,
