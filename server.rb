@@ -26,6 +26,8 @@ set :flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
 
+set :mutex, Mutex.new
+
 disable :logging
 
 # Set REMOTE_ADDR from X-Forwarded-For.
@@ -147,8 +149,10 @@ get "/visit" do
        :country_code => geo[:country_code2])
     visits.add(visit)
 
-    log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
-    log.flush
+    settings.mutex.synchronize do
+      log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
+      log.flush
+    end
   end
 
   content_type :json, :charset => "utf-8"
