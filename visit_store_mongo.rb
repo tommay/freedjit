@@ -11,7 +11,7 @@ class VisitStoreMongo
 
   def save(key, visit)
     hash = visit.to_hash
-    hash["_id"] = BSON::ObjectId.from_time(hash.delete("time"))
+    hash["_id"] = BSON::ObjectId.new(nil, hash.delete("time"))
     @db.collection(key).insert(hash)
   end
 
