@@ -72,7 +72,7 @@ helpers do
     country_code = country_code.downcase
     if settings.flags.include?(country_code)
       port = ":#{request.port}" unless request.port == 80
-      "http://#{request.host}#{port}/images/flags/#{country_code.downcase}.gif"
+      "http://#{request.host}#{port}/images/flags/#{country_code}.gif"
     end
   end
 end
