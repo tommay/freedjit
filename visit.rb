@@ -18,6 +18,22 @@ class Visit
     @time = args["time"] || Time.now.to_i
   end
 
+  def to_hash
+    {
+      "id" => @id,
+      "ip" => @ip,
+      "new_visitor" => @new_visitor,
+      "url" => @url,
+      "title" => @title,
+      "city" => @city,
+      "region" => @region,
+      "country" => @country,
+      "country_code" => @country_code,
+      "user_agent" => @user_agent,
+      "time" => @time,
+    }
+  end
+
   def same_visitor?(other)
     if self.new? || other.new?
       self.ip == other.ip

@@ -5,6 +5,8 @@ gem "rack-contrib", :require => "rack/contrib"
 gem "unxf"
 gem "clogger"
 gem "haml"
+gem "mongo"
+gem "bson_ext"
 gem "geoip"
 
 group :development do

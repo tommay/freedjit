@@ -28,7 +28,7 @@ class VisitStoreFile
     end
   end
 
-  def save(visit)
+  def save(key, visit)
     @visits.add(visit)
 
     @mutex.synchronize do

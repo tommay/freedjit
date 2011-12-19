@@ -15,7 +15,7 @@ require "set"
 $LOAD_PATH << "."
 
 require "visit"
-require "visit_store_file"
+require "visit_store_mongo"
 
 set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
@@ -23,6 +23,8 @@ set :host, ENV["F_HOST"]
 set :dir, ENV["F_DIR"] || "log"
 set :password, ENV["F_PASSWORD"]
 secret = ENV["F_SECRET"]
+
+mongo_uri = ENV['MONGOLAB_URI'] || "mongodb://localhost/freedjit-test"
 
 set :flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
@@ -49,15 +51,15 @@ use Rack::JSONP
 
 geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
 
-visit_store = VisitStoreFile.new("#{settings.dir}/visits.log")
+visit_store = VisitStoreMongo.new(mongo_uri)
 
 helpers do
   def string_or_nil(val)
     (val && val.size > 0) ? val : nil
   end
 
-  def key_ok?
-    params[:key] == settings.key
+  def key_ok?(key)
+    key == settings.key
   end
 
   def url_ok?(url)
@@ -107,7 +109,9 @@ get "/visit" do
   title = params[:t]
   title = params[:title] if !title || title == ""
 
-  @ok = key_ok? && url_ok?(url) && url_ok?(h)
+  key = params[:key]
+
+  @ok = key_ok?(key) && url_ok?(url) && url_ok?(h)
 
   session = {} # XXX
 
@@ -132,7 +136,7 @@ get "/visit" do
        "country_code" => geo[:country_code2],
        "user_agent" => request.user_agent)
 
-    visit_store.save(visit)
+    visit_store.save(key, visit)
   end
 
   content_type :json, :charset => "utf-8"
@@ -142,10 +146,11 @@ end
 get "/list" do
   session = {}
   @list = []
-  if key_ok?
+  key = params[:key]
+  if key_ok?(key)
     id = session[:id]
     ip = request.ip
-    visit_store.each_not(id, ip) do |v|
+    visit_store.each_not(key, id, ip) do |v|
       @list << v unless @list.any? do |e|
         e.same_visitor?(v) && e.display_title == v.display_title
       end
