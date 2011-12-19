@@ -12,8 +12,10 @@ require "geoip"
 require "uri"
 require "set"
 
-load "visit.rb"
-load "bounded_list.rb"
+$LOAD_PATH << "."
+
+require "visit"
+require "visit_store_file"
 
 set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
@@ -25,8 +27,6 @@ secret = ENV["F_SECRET"]
 set :flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
-
-set :mutex, Mutex.new
 
 disable :logging
 
@@ -47,26 +47,9 @@ use Rack::JSONP
 
 #set :haml, :escape_html => true
 
-visits = BoundedList.new(1000)
 geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
-log = File.open("#{settings.dir}/visits.log", "a")
 
-File.open("#{settings.dir}/visits.log").each do |line|
-  s = line.chomp.split(/\|/) rescue next
-
-  keys = [:time, :id, :new_visitor, :ip, :url, :title,
-          :city, :region, :country, :country_code, :user_agent]
-
-  v = {}
-  keys.each_with_index do |key, i|
-    v[key] = s[i]
-  end
-
-  v[:new_visitor] = v[:new_visitor] == "t"
-  v[:time] = v[:time].to_i
-
-  visits.add(Visit.new(v))
-end
+visit_store = VisitStoreFile.new("#{settings.dir}/visits.log")
 
 helpers do
   def string_or_nil(val)
@@ -147,12 +130,8 @@ get "/visit" do
        :region => geo[:region_name],
        :country => geo[:country_name],
        :country_code => geo[:country_code2])
-    visits.add(visit)
 
-    settings.mutex.synchronize do
-      log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
-      log.flush
-    end
+    visit_store.save(visit, request)
   end
 
   content_type :json, :charset => "utf-8"
@@ -165,7 +144,7 @@ get "/list" do
   if key_ok?
     id = session[:id]
     ip = request.ip
-    visits.all.select{|v| id ? v.id != id : v.ip != ip}.each do |v|
+    visit_store.each_not(id, ip) do |v|
       @list << v unless @list.any? do |e|
         e.same_visitor?(v) && e.display_title == v.display_title
       end
