@@ -2,7 +2,7 @@ require "uri"
 
 class Visit
   attr_reader :id, :ip, :url, :title, :time, :city, :region,
-    :country, :country_code
+    :country, :country_code, :user_agent
 
   def initialize(args)
     @id = args[:id]
@@ -14,6 +14,7 @@ class Visit
     @region = args[:region]
     @country = args[:country]
     @country_code = args[:country_code]
+    @user_agent= args[:user_agent]
     @time = args[:time] || Time.now.to_i
   end
 

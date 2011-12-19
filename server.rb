@@ -129,9 +129,10 @@ get "/visit" do
        :city => (geo[:city_name].encode("UTF-8") rescue nil),
        :region => geo[:region_name],
        :country => geo[:country_name],
-       :country_code => geo[:country_code2])
+       :country_code => geo[:country_code2],
+       :user_agent => request.user_agent)
 
-    visit_store.save(visit, request)
+    visit_store.save(visit)
   end
 
   content_type :json, :charset => "utf-8"

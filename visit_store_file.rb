@@ -28,11 +28,11 @@ class VisitStoreFile
     end
   end
 
-  def save(visit, request)
+  def save(visit)
     @visits.add(visit)
 
     @mutex.synchronize do
-      @log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{request.user_agent}\n")
+      @log.write("#{visit.time}|#{visit.id}|#{visit.new? ? "t" : "f"}|#{visit.ip}|#{visit.url}|#{visit.title}|#{visit.city}|#{visit.region}|#{visit.country}|#{visit.country_code}|#{visit.user_agent}\n")
       @log.flush
     end
   end
