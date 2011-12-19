@@ -5,17 +5,17 @@ class Visit
     :country, :country_code, :user_agent
 
   def initialize(args)
-    @id = args[:id]
-    @ip = args[:ip]
-    @new_visitor = args[:new_visitor]
-    @url = args[:url]
-    @title = args[:title]
-    @city = args[:city]
-    @region = args[:region]
-    @country = args[:country]
-    @country_code = args[:country_code]
-    @user_agent= args[:user_agent]
-    @time = args[:time] || Time.now.to_i
+    @id = args["id"]
+    @ip = args["ip"]
+    @new_visitor = args["new_visitor"]
+    @url = args["url"]
+    @title = args["title"]
+    @city = args["city"]
+    @region = args["region"]
+    @country = args["country"]
+    @country_code = args["country_code"]
+    @user_agent= args["user_agent"]
+    @time = args["time"] || Time.now.to_i
   end
 
   def same_visitor?(other)

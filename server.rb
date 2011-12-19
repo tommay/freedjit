@@ -121,16 +121,16 @@ get "/visit" do
     geo = geo ? geo.to_hash : {}
 
     visit = Visit.new(
-       :id => session[:id],
-       :ip => request.ip,
-       :new_visitor => new_visitor,
-       :url => h,
-       :title => string_or_nil(title),
-       :city => (geo[:city_name].encode("UTF-8") rescue nil),
-       :region => geo[:region_name],
-       :country => geo[:country_name],
-       :country_code => geo[:country_code2],
-       :user_agent => request.user_agent)
+       "id" => session[:id],
+       "ip" => request.ip,
+       "new_visitor" => new_visitor,
+       "url" => h,
+       "title" => string_or_nil(title),
+       "city" => (geo[:city_name].encode("UTF-8") rescue nil),
+       "region" => geo[:region_name],
+       "country" => geo[:country_name],
+       "country_code" => geo[:country_code2],
+       "user_agent" => request.user_agent)
 
     visit_store.save(visit)
   end
