@@ -13,7 +13,8 @@ class VisitStoreFile
         s = line.chomp.split(/\|/) rescue next
 
         keys = [:time, :id, :new_visitor, :ip, :url, :title,
-                :city, :region, :country, :country_code, :user_agent]
+                :city, :region, :country, :country_code, :user_agent,
+                :referrer]
 
         v = {}
         keys.each_with_index do |key, i|

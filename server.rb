@@ -109,6 +109,8 @@ get "/visit" do
   title = params[:t]
   title = params[:title] if !title || title == ""
 
+  referrer = params[:ref]
+
   key = params[:key]
 
   @ok = key_ok?(key) && url_ok?(url) && url_ok?(h)
@@ -134,7 +136,8 @@ get "/visit" do
        "region" => geo[:region_name],
        "country" => geo[:country_name],
        "country_code" => geo[:country_code2],
-       "user_agent" => request.user_agent)
+       "user_agent" => request.user_agent,
+       "referrer" => referrer)
 
     visit_store.save(key, visit)
   end
