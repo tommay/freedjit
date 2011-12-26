@@ -62,7 +62,7 @@ helpers do
     key == settings.key
   end
 
-  def url_ok?(url)
+  def page_ok?(url)
     uri = URI.parse(url) rescue nil
     uri.respond_to?(:host) && uri.host == settings.host &&
       uri.respond_to?(:path) && uri.path !~ %r{^/b/}
@@ -97,23 +97,22 @@ get "/#{settings.name}.js" do
 end
 
 get "/visit" do
-  # We test url just to filter out /b/.  Should do this better.
-
-  url = params[:url]
-  url.sub!(%r{://www\.}, "://") if url
-
-  h = params[:h]
-  h = params[:url] if !h || h == ""
-  h.sub!(%r{://www\.}, "://") if h
-
-  title = params[:t]
-  title = params[:title] if !title || title == ""
-
-  referrer = params[:ref]
-
   key = params[:key]
 
-  @ok = key_ok?(key) && url_ok?(url) && url_ok?(h)
+  # document.URL (url for the page containing the javascript)
+  page = params[:page] || ""
+  page.sub!(%r{://www\.}, "://")
+
+  title = params[:title]
+
+  # href scraped from the page's title html that links to the page.
+  url = params[:url] || ""
+  url.sub!(%r{://www\.}, "://")
+
+  # document.referrer, i.e., page the user came from.
+  referrer = params[:ref]
+
+  @ok = key_ok?(key) && page_ok?(page) && page_ok?(url)
 
   session = {} # XXX
 
@@ -130,14 +129,14 @@ get "/visit" do
        "id" => session[:id],
        "ip" => request.ip,
        "new_visitor" => new_visitor,
-       "url" => h,
+       "url" => url,
        "title" => string_or_nil(title),
        "city" => (geo[:city_name].encode("UTF-8") rescue nil),
        "region" => geo[:region_name],
        "country" => geo[:country_name],
        "country_code" => geo[:country_code2],
        "user_agent" => request.user_agent,
-       "referrer" => referrer)
+       "referrer" => string_or_nil(referrer))
 
     visit_store.save(key, visit)
   end

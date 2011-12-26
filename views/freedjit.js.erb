@@ -4,11 +4,10 @@
         "http://" + server + "/visit",
         {
             key: key,
-            title: document.title,
-            url: document.URL,
-            ref: document.referrer || "",
-            t: a.html() || "",
-            h: a.attr("href") || ""
+            page: document.URL,
+            title: (a && a.html()) || document.title,
+            url: (a && a.attr("href")) || "",
+            ref: document.referrer || ""
         },
         function (response) {
             response.apply(key, server);
