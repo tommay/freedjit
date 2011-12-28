@@ -1,8 +1,8 @@
 require "uri"
 
 class Visit
-  attr_reader :id, :ip, :url, :title, :time, :city, :region,
-    :country, :country_code, :user_agent, :referrer
+  attr_reader :id, :ip, :url, :title, :city, :region, :country,
+    :country_code, :user_agent, :page, :referrer, :time
 
   def initialize(args)
     @id = args["id"]
@@ -15,6 +15,7 @@ class Visit
     @country = args["country"]
     @country_code = args["country_code"]
     @user_agent= args["user_agent"]
+    @page = args["page"]
     @referrer = args["referrer"]
     @time = args["time"] || Time.now.to_i
   end
@@ -31,6 +32,7 @@ class Visit
       "country" => @country,
       "country_code" => @country_code,
       "user_agent" => @user_agent,
+      "page" => @page,
       "referrer" => @referrer,
       "time" => @time,
     }

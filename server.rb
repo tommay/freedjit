@@ -136,6 +136,7 @@ get "/visit" do
        "country" => geo[:country_name],
        "country_code" => geo[:country_code2],
        "user_agent" => request.user_agent,
+       "page" => page,
        "referrer" => string_or_nil(referrer))
 
     visit_store.save(key, visit)
