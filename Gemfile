@@ -1,4 +1,7 @@
-source :rubygems
+source "https://rubygems.org"
+
+ruby "2.1.5"
+
 gem "sinatra"
 gem "thin"
 gem "rack-contrib", :require => "rack/contrib"
@@ -17,5 +20,5 @@ gem "geoip"
 
 group :development do
   gem "heroku"
-  gem "ruby-debug19"
+  gem "byebug"
 end
