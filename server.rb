@@ -11,6 +11,9 @@ require "geoip"
 require_relative "visit"
 require_relative "visit_store_mongo"
 
+# Add values to Sinatra's "settings" that need to be accessed from
+# various places.
+
 set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
 set :host, ENV["F_HOST"]
@@ -20,7 +23,10 @@ secret = ENV["F_SECRET"]
 
 mongo_uri = ENV['MONGOLAB_URI'] || "mongodb://localhost/freedjit-test"
 
-set :flags, (Dir["public/images/flags/*.gif"].map do |name|
+# settings.country_flags is a Set of strings, one for each country we
+# have a flag image for.
+
+set :country_flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
 
@@ -52,7 +58,7 @@ helpers do
 
   def flag_url(country_code)
     country_code = country_code.downcase
-    if settings.flags.include?(country_code)
+    if settings.country_flags.include?(country_code)
       port = ":#{request.port}" unless request.port == 80
       "http://#{request.host}#{port}/images/flags/#{country_code}.gif"
     end
