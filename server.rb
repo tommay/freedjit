@@ -11,17 +11,130 @@ require "geoip"
 require_relative "visit"
 require_relative "visit_store_mongo"
 
-# Add values to Sinatra's "settings" that need to be accessed from
-# various places.
+# Freedjit is a widget that can be added to a blogspot page template.
+# It logs visits to the blog, and displays a list of the N most recent
+# visitors' cities and/or countries, with little country flag images.
+# The list updates automatically once a minute.
+#
+# Freedjit was inspired by feedjit, but I wanted a free version.
+# Country flags are provided by famfamfam.com.  IP->Geo mapping is
+# provided by Maxmind's free GeoLite2-City database.  I've hosted
+# freedjit on both EC2 and Heroku.
+#
+# When deploying to a single host, on EC2 for example, the visitor log
+# can be stored in a flat file, but for a multi-host deployment or
+# Heroku the visitor log needs to be kept in (semi-)duurable off-host
+# storage.  I use mongodb for that, because a) it's reasonably simple
+# when I'm not forgetting how to use it, b) I could never attach to a
+# Postgres database on Heroku.  mongodb is fine for a little app like
+# this without much demand and little or no requirement for durability
+# (i.e., if the data isn't backed up it's not a big deal, losing your
+# visitor log isn't going to bring the world to a cataclysmic end).
+#
+# freedjit is built on three web requests handled by ruby+sinatra, and
+# some javascript running on the browser.  Note that all JSONP
+# resposes return an object that includes an "apply" function which is
+# run by the caller, so the response gets to specify how it should be
+# "applied".
+#
+# /freedjit.js?key=<key>
+#   This simple request is part of the widget code added to the template.
+#   Key is the app key for a particular user.  If it isn't recognized
+#   the request 404s.
+#   The response is from views/freedjit.js; it scrounges up a few more
+#   parameters from the containing page and makes a JSONP request to /visit.
+# /visit
+#   A JSONP get request with (see views/freedjit.js.erb for details about
+#   where these values from):
+#     key: the key that was passed in the /freedjit.js request
+#     page: document.URL of the containing page
+#     title: title of the containing page
+#     url: url of the containing page, or ""
+#     ref: the containing pages's referrer, or ""
+#   Checks the request for proper aauthorization, bundles the
+#   parameters into a Visit object, and saves the Visit to the store.
+#   Returns javascript from views/visit.js.erb.  Its apply function
+#   sets up a function "list" to be run every minute which gets /list
+#   and runs the response's apply method.
+# /list
+#   key: XXX
+#   Checks the key.  Returns a list of the last 6 visitors to the site
+#   with ip different from the requester's ip.  I.e., you don't show up
+#   as a visitor.
+#   The html for the list is rendered by views/list.haml, and is
+#   included inline in the response's apply method, to use as a
+#   replacement for the #list's html.
+#
+# Classes, ids, and CSS:
+# list.haml uses the following classes, which can be specified in
+# your blog's CSS to style things the way you want:
+#   ul.visits
+#     The ul containing an li element for each visit.  This styles
+#     the text "A visitor" and "viewed", and the title of the page
+#     they viewed (unless it's a link, then it's a.visit-link).
+#   span.visit-where
+#     The city/country the visitor was from.
+#   img.visit-flag
+#     The visitor's country flag image.
+#   a.visit-link
+#     Link to the page the visitor viewed.
+#   div.visit-when
+#     Time the visitor viewed the page.
+# Additionally, freedjit expects that the widget will be in a template
+# element with id "list".  It updates this element's html.
+#
+# Add this html as a widget.  The id='list' for the ul element is required:
+#   <div id='list'>
+#     <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js' type='text/javascript'></script>
+#     <script src='http://localhost:4093/who.js?key=s69m9pslkv' type='text/javascript' async='async'></script>
+#   </div>
+
+# Put environment variables into settings.  In most cases we could
+# just put them in local variables and access them via
+# blocks/closures, but anything needed by a helper method defined with
+# "def" can't be accessed via a closure and needs to go in settings.
+
+# Name is the name recognized for fetching the main javascript file,
+# i.e., /<name>.js.
 
 set :name, ENV["F_NAME"]
-set :key, ENV["F_KEY"]
-set :host, ENV["F_HOST"]
-set :dir, ENV["F_DIR"] || "log"
-set :password, ENV["F_PASSWORD"]
-secret = ENV["F_SECRET"]
 
-mongo_uri = ENV['MONGOLAB_URI'] || "mongodb://localhost/freedjit-test"
+# Key is intended to be used for multi-user/multi-site support, each
+# user/site having a different key.  For now only one key is
+# recognized.  An invalid key gives a 404.  Note that the key is in
+# the html that makes these requests so it's not secure, but it's
+# intended to match only one host passed in from the page's url and
+# title so it's not too bad.
+
+set :key, ENV["F_KEY"]
+
+# The host that matches the key.  Only requests from this host are
+# honored by /visit, as determined by host of the url parameter passed
+# in the request.
+
+set :host, ENV["F_HOST"]
+
+# XXX this seems not to be used.
+
+set :dir, ENV["F_DIR"] || "log"
+
+# This is for use with /ignore and /clear requests, which give the
+# browser a session cookie causing it to be ignored in subsequent
+# requests.  Intended for the owner of the site to be able to use the
+# site without giving their location away.
+
+set :password, ENV["F_PASSWORD"]
+
+# F_EXCLUDES is a colon-separated list of ip addresses to not track as
+# visitors.
+
+set :excludes, ENV["F_EXCLUDES"].split(":")
+
+# This is something for the session cookie, which is currently unused.
+
+set :secret, ENV["F_SECRET"]
+
+mongo_uri = ENV["MONGOLAB_URI"]
 
 # settings.country_flags is a Set of strings, one for each country we
 # have a flag image for.
@@ -30,11 +143,6 @@ set :country_flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
 
-# F_EXCLUDES is a colon-separated list of ip addresses to not track as
-# visitors.
-
-set :excludes, ENV["F_EXCLUDES"].split(":")
-
 #set :haml, :escape_html => true
 
 geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
@@ -42,19 +150,28 @@ geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
 visit_store = VisitStoreMongo.new(mongo_uri)
 
 helpers do
+  # Convert "" into nil.
+
   def string_or_nil(val)
     (val && val.size > 0) ? val : nil
   end
+
+  # Check that the key matches a known key.
 
   def key_ok?(key)
     key == settings.key
   end
 
-  def page_ok?(url)
+  # Check that the page passed in is ok for the given key.
+
+  def page_ok?(key, url)
     uri = URI.parse(url) rescue nil
     uri.respond_to?(:host) && uri.host == settings.host &&
       uri.respond_to?(:path) && uri.path !~ %r{^/b/}
   end
+
+  # Return the flag image url for the given country_code, or nil if
+  # there is no flag image.
 
   def flag_url(country_code)
     country_code = country_code.downcase
@@ -65,16 +182,26 @@ helpers do
 end
 
 before do
+  # This was meant to placate IE and make it accept the cookies I
+  # wanted to hand out to distinguish new visitors from returning
+  # visitors, or something, but nobody understands this mess and IE
+  # didn't seem to understand it either.  And I eentually have up on
+  # the cookies for lack of an IE to test with.
   response["P3P"] = "CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\""
 end
+
+# / is just an empty page.  It isn't used by anything.
 
 get "/" do
   haml :index
 end
 
+# This is the page requested by the widget.  It can have whatever name
+# you want, as specified by F_NAME in the environment.
+
 get "/#{settings.name}.js" do
   @key = params[:key]
-  halt 404 unless @key && @key =~ /[a-zA-Z0-9\-]+/
+  halt 404 unless key_ok?(@key)
   @name = settings.name
   @http_root = url("/")
   content_type :js
@@ -98,7 +225,7 @@ get "/visit" do
   # document.referrer, i.e., page the user came from.
   referrer = params[:ref]
 
-  @ok = key_ok?(key) && page_ok?(page) && page_ok?(url)
+  @ok = key_ok?(key) && page_ok?(key, page) && page_ok?(key, url)
 
   session = {} # XXX
 

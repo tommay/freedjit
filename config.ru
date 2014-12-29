@@ -24,9 +24,9 @@ use Clogger,
   :reentrant => true
 
 #use Rack::Session::Cookie,
-#  :key => 'freedjit',
+#  :key => settings.name,
 #  :expire_after => 10*365*86400,
-#  :secret => secret
+#  :secret => settings.secret
 
 # Add JSON-P support by stripping out the callback param and padding
 # the response with the appropriate callback format.
