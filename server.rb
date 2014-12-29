@@ -11,10 +11,8 @@ require "geoip"
 require "uri"
 require "set"
 
-$LOAD_PATH << "."
-
-require "visit"
-require "visit_store_mongo"
+require_relative "visit"
+require_relative "visit_store_mongo"
 
 set :name, ENV["F_NAME"]
 set :key, ENV["F_KEY"]
