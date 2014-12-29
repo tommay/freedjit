@@ -3,13 +3,7 @@
 require "uri"
 require "set"
 
-require "rubygems"
-require "bundler/setup"
-
 require "sinatra"
-require "rack/contrib"
-require "unxf"
-require "clogger"
 require "haml"
 require "erb"
 require "geoip"
@@ -30,27 +24,10 @@ set :flags, (Dir["public/images/flags/*.gif"].map do |name|
   File.basename(name, ".gif").downcase
 end.to_set)
 
-disable :logging
-
 # F_EXCLUDES is a colon-separated list of ip addresses to not track as
 # visitors.
 
 set :excludes, ENV["F_EXCLUDES"].split(":")
-
-# Set REMOTE_ADDR from X-Forwarded-For.
-use UnXF
-
-use Clogger,
-  :logger => $stderr,
-  :format => Clogger::Format::Combined,
-  :reentrant => true
-
-#use Rack::Session::Cookie,
-#  :key => 'freedjit',
-#  :expire_after => 10*365*86400,
-#  :secret => secret
-
-use Rack::JSONP
 
 #set :haml, :escape_html => true
 
