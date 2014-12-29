@@ -1,12 +1,12 @@
 {
 <% if @ok %>
-    apply: function (key, server) {
+    apply: function (key, http_root) {
         (function (list) {
             list();
             setInterval(list, 60000);
         }(function () {
             $.get(
-                "http://" + server + "/list",
+                http_root + "list",
                 { key: key },
                 function (response) {
                     response.apply();
@@ -16,6 +16,6 @@
         }));
     }
 <% else %>
-    apply: function (key, server) {}
+    apply: function (key, http_root) {}
 <% end %>
 }

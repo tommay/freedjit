@@ -59,8 +59,7 @@ helpers do
   def flag_url(country_code)
     country_code = country_code.downcase
     if settings.country_flags.include?(country_code)
-      port = ":#{request.port}" unless request.port == 80
-      "http://#{request.host}#{port}/images/flags/#{country_code}.gif"
+      url("/images/flags/#{country_code}.gif")
     end
   end
 end
@@ -77,8 +76,7 @@ get "/#{settings.name}.js" do
   @key = params[:key]
   halt 404 unless @key && @key =~ /[a-zA-Z0-9\-]+/
   @name = settings.name
-  @server = request.host
-  @server << ":#{request.port}" if request.port != 80
+  @http_root = url("/")
   content_type :js
   last_modified File.stat("views/freedjit.js.erb").mtime
   erb(:"freedjit.js")

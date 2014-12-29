@@ -1,7 +1,7 @@
-(function (key, server) {
+(function (key, http_root) {
     var a = $(".post-title a");
     $.get(
-        "http://" + server + "/visit",
+        http_root + "visit",
         {
             key: key,
             page: document.URL,
@@ -10,7 +10,7 @@
             ref: document.referrer || ""
         },
         function (response) {
-            response.apply(key, server);
+            response.apply(key, http_root);
         },
         "jsonp");
-}('<%= @key %>', '<%= @server %>'));
+}('<%= @key %>', '<%= @http_root %>'));
