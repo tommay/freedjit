@@ -1,6 +1,11 @@
 #!/usr/bin/env ruby
 
+require "uri"
+require "set"
+
 require "rubygems"
+require "bundler/setup"
+
 require "sinatra"
 require "rack/contrib"
 require "unxf"
@@ -8,8 +13,6 @@ require "clogger"
 require "haml"
 require "erb"
 require "geoip"
-require "uri"
-require "set"
 
 require_relative "visit"
 require_relative "visit_store_mongo"
