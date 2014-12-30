@@ -61,9 +61,9 @@ require_relative "visit_store_mongo"
 #   Checks the key.  Returns a list of the last 6 visitors to the site
 #   with ip different from the requester's ip.  I.e., you don't show up
 #   as a visitor.
-#   The html for the list is rendered by views/list.haml, and is
-#   included inline in the response's apply method, to use as a
-#   replacement for the #list's html.
+#   The html for the list is rendered by views/list.haml, and used by
+#   the response's apply method as a replacement for the
+#   #<name>-list element's html.
 #
 # Classes, ids, and CSS:
 # list.haml uses the following classes, which can be specified in
@@ -83,8 +83,9 @@ require_relative "visit_store_mongo"
 # Additionally, freedjit expects that the widget will be in a template
 # element with id "list".  It updates this element's html.
 #
-# Add this html as a widget.  The id='list' for the ul element is required:
-#   <div id='list'>
+# Add this html as a widget.  The id='<name>-list' for the ul element
+# is required (name is specified by the F_NAME environment variable):
+#   <div id='<name>-list'>
 #     <script src='http://ajax.googleapis.com/ajax/libs/jquery/1.5.0/jquery.min.js' type='text/javascript'></script>
 #     <script src='http://localhost:4093/who.js?key=s69m9pslkv' type='text/javascript' async='async'></script>
 #   </div>
@@ -275,6 +276,7 @@ get "/list" do
   end
 
   @html = haml(:list)
+  @name = settings.name
 
   content_type :json, :charset => "utf-8"
   erb(:"list.js")

@@ -1,5 +1,5 @@
 {
     apply: function () {
-        $('#list').html('<%= @html.gsub(/'/, "\\\\'").gsub(/\n/, "") %>');
+        $('#<%= @name %>-list').html('<%= @html.gsub(/'/, "\\\\'").gsub(/\n/, "") %>');
     }
 }
