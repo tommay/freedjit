@@ -201,13 +201,11 @@ end
 # you want, as specified by F_NAME in the environment.
 
 get "/#{settings.name}.js" do
-  @key = params[:key]
-  halt 404 unless key_ok?(@key)
-  @name = settings.name
-  @http_root = url("/")
+  key = params[:key]
+  halt 404 unless key_ok?(key)
   content_type :js
   last_modified File.stat("views/freedjit.js.erb").mtime
-  erb(:"freedjit.js")
+  erb(:"freedjit.js", locals: {key: key, http_root: url("/")})
 end
 
 get "/visit" do
@@ -226,11 +224,11 @@ get "/visit" do
   # document.referrer, i.e., page the user came from.
   referrer = params[:ref]
 
-  @ok = key_ok?(key) && page_ok?(key, page) && page_ok?(key, url)
+  ok = key_ok?(key) && page_ok?(key, page) && page_ok?(key, url)
 
   session = {} # XXX
 
-  if @ok && !session[:ignore] && !settings.excludes.include?(request.ip)
+  if ok && !session[:ignore] && !settings.excludes.include?(request.ip)
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "none" # XXX "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -257,29 +255,28 @@ get "/visit" do
   end
 
   content_type :json, :charset => "utf-8"
-  erb(:"visit.js")
+  erb(:"visit.js", locals: {ok: ok})
 end
 
 get "/list" do
   session = {}
-  @list = []
+  list = []
   key = params[:key]
   if key_ok?(key)
     id = session[:id]
     ip = request.ip
     visit_store.each_not(key, id, ip) do |v|
-      @list << v unless @list.any? do |e|
+      list << v unless list.any? do |e|
         e.same_visitor?(v) && e.display_title == v.display_title
       end
-      break if @list.size == 6
+      break if list.size == 6
     end
   end
 
-  @html = haml(:list)
-  @name = settings.name
+  html = haml(:list, locals: {list: list})
 
   content_type :json, :charset => "utf-8"
-  erb(:"list.js")
+  erb(:"list.js", locals: {html: html, name: settings.name})
 end
 
 get "/ignore" do
