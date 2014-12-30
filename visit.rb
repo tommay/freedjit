@@ -79,10 +79,6 @@ class Visit
     result
   end
 
-  def flag
-    "#{@iso_country}.png" if @iso_country
-  end
-
   def when
     seconds = Time.now.to_i - @time
     return ago(seconds, "second") if seconds < 60
