@@ -6,7 +6,7 @@ require "set"
 require "sinatra"
 require "haml"
 require "erb"
-require "geoip"
+require "maxminddb"
 
 require_relative "visit"
 require_relative "visit_store_mongo"
@@ -146,7 +146,7 @@ end.to_set)
 
 #set :haml, :escape_html => true
 
-geoip = GeoIP.new("maxmind/GeoLiteCity.dat")
+maxminddb = MaxMindDB.new("maxmind/GeoLite2-City.mmdb")
 
 visit_store = VisitStoreMongo.new(mongo_uri)
 
@@ -234,8 +234,7 @@ get "/visit" do
       new_visitor = true
     end
 
-    geo = geoip.city(request.ip)
-    geo = geo ? geo.to_hash : {}
+    geo = maxminddb.lookup(request.ip)
 
     visit = Visit.new(
        "id" => session[:id],
@@ -243,10 +242,11 @@ get "/visit" do
        "new_visitor" => new_visitor,
        "url" => url,
        "title" => string_or_nil(title),
-       "city" => (geo[:city_name].encode("UTF-8") rescue nil),
-       "region" => geo[:region_name],
-       "country" => geo[:country_name],
-       "country_code" => geo[:country_code2],
+       "city" => (geo.city.name rescue nil),
+       "region" => (geo.subdivisions.first.name rescue nil),
+       "country" => geo.country.name,
+       "country_code" => geo.country.iso_code,
+       "anonymous_proxy" => geo.traits.is_anonymous_proxy,
        "user_agent" => request.user_agent,
        "page" => page,
        "referrer" => string_or_nil(referrer))

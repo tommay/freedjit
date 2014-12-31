@@ -14,6 +14,7 @@ class Visit
     @region = args["region"]
     @country = args["country"]
     @country_code = args["country_code"]
+    @anonymous_proxy = args["anonymous_proxy"]
     @user_agent= args["user_agent"]
     @page = args["page"]
     @referrer = args["referrer"]
@@ -31,6 +32,7 @@ class Visit
       "region" => @region,
       "country" => @country,
       "country_code" => @country_code,
+      "anonymous_proxy" => @anonymous_proxy,
       "user_agent" => @user_agent,
       "page" => @page,
       "referrer" => @referrer,
@@ -51,10 +53,12 @@ class Visit
   end
 
   def where
-    return nil if [ "A1", "A2", "O2" ].include?(@country_code)
     result = ""
-    if @city
+    case
+    when @city
       result << @city
+    when @anonymous_proxy
+      result << "an anonymous proxy"
     end
     if ["US", "CA"].include?(@country_code) && @region
       result << ", " if result != ""
@@ -62,16 +66,7 @@ class Visit
     end
     if @country
       result << ", " if result != ""
-      result << case @country
-        when /(.*), (.*)/
-          if $1 == "Taiwan"
-            $1
-          else
-            "#{$2} #{$1}"
-          end
-        else
-          @country
-        end
+      result << @country
     end
     if result == ""
       result = nil

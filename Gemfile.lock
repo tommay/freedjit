@@ -16,7 +16,6 @@ GEM
     debugger-linecache (1.2.0)
     eventmachine (1.0.4)
     excon (0.42.1)
-    geoip (1.4.0)
     haml (4.0.6)
       tilt
     heroku (3.21.4)
@@ -31,6 +30,7 @@ GEM
       multi_json (~> 1.8)
     launchy (2.4.3)
       addressable (~> 2.3)
+    maxminddb (0.1.5)
     mime-types (2.4.3)
     mongo (1.11.1)
       bson (= 1.11.1)
@@ -67,9 +67,9 @@ DEPENDENCIES
   bson_ext
   byebug
   clogger
-  geoip
   haml
   heroku
+  maxminddb
   mongo
   rack-contrib
   sinatra
