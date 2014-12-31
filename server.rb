@@ -1,7 +1,6 @@
 #!/usr/bin/env ruby
 
 require "uri"
-require "set"
 
 require "sinatra"
 require "haml"
@@ -137,12 +136,15 @@ set :secret, ENV["F_SECRET"]
 
 mongo_uri = ENV["MONGOLAB_URI"]
 
-# settings.country_flags is a Set of strings, one for each country we
-# have a flag image for.
+# settings.country_flags is a Hash from country_iso_code => url path
+# to use to get the country's flag image.
 
-set :country_flags, (Dir["public/images/flags/*.gif"].map do |name|
-  File.basename(name, ".gif").downcase
-end.to_set)
+set :country_flags, Hash[
+  Dir["public/images/flags/*.gif"].map do |name|
+    [File.basename(name, ".gif").downcase,
+     name.sub("public/", "")]
+  end
+]
 
 #set :haml, :escape_html => true
 
@@ -175,9 +177,9 @@ helpers do
   # there is no flag image.
 
   def flag_url(country_code)
-    country_code = country_code.downcase
-    if settings.country_flags.include?(country_code)
-      url("/images/flags/#{country_code}.gif")
+    country_flag = settings.country_flags[country_code.downcase]
+    if country_flag
+      url(country_flag)
     end
   end
 end
