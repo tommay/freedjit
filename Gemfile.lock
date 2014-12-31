@@ -1,3 +1,9 @@
+GIT
+  remote: git://github.com/tommay/maxminddb.git
+  revision: 5839955a1607b9cc640a22bd62f8f74df236a725
+  specs:
+    maxminddb (0.1.5)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -30,7 +36,6 @@ GEM
       multi_json (~> 1.8)
     launchy (2.4.3)
       addressable (~> 2.3)
-    maxminddb (0.1.5)
     mime-types (2.4.3)
     mongo (1.11.1)
       bson (= 1.11.1)
@@ -69,7 +74,7 @@ DEPENDENCIES
   clogger
   haml
   heroku
-  maxminddb
+  maxminddb!
   mongo
   rack-contrib
   sinatra

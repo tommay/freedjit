@@ -16,7 +16,7 @@ gem "bson"
 # performance-critical, but why not.
 
 gem "bson_ext"
-gem "maxminddb"
+gem "maxminddb", :github => "tommay/maxminddb"
 
 group :development do
   gem "heroku"
