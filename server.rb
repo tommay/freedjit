@@ -31,6 +31,11 @@ end.to_set)
 
 disable :logging
 
+# F_EXCLUDES is a colon-separated list of ip addresses to not track as
+# visitors.
+
+set :excludes, ENV["F_EXCLUDES"].split(":")
+
 # Set REMOTE_ADDR from X-Forwarded-For.
 use UnXF
 
@@ -115,7 +120,7 @@ get "/visit" do
 
   session = {} # XXX
 
-  if @ok && !session[:ignore]
+  if @ok && !session[:ignore] && !settings.excludes.include?(request.ip)
     if session[:id].nil? || session[:id].size != 16
       session[:id] = "none" # XXX "%.16x" % rand(1 << 64)
       new_visitor = true
