@@ -7,6 +7,13 @@ require "rack/contrib"
 
 require_relative "server"
 
+# Tell Sinatra we don't want json_csrf protection since it causes a
+# 403 Forbidden when fetching /visit and the referer is not the host.
+# Sinatra (or something) installs protection when
+# RACK_ENV="production".
+
+set :protection, :except => [:json_csrf]
+
 # Remove "HTTP_X_FORWARDED_FOR" in the Rack environment and replace
 # "REMOTE_ADDR" with the value of the original client address.
 
