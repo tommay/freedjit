@@ -176,10 +176,6 @@ get "/ignore" do
   "ok"
 end
 
-get "/sand" do
-  haml :sand
-end
-
 get "/clear" do
   session = {}
   if params[:password] == settings.password
