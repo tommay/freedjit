@@ -108,11 +108,13 @@ set :name, ENV["F_NAME"]
 
 set :key, ENV["F_KEY"]
 
-# The host that matches the key.  Only requests from this host are
-# honored by /visit, as determined by host of the url parameter passed
-# in the request.
+# The blog that matches the key, e.g., "xyz.blogspot".  Only requests
+# from this blog are honored by /visit, as determined by host of the
+# url parameter passed in the request.  Use a regexp to match
+# variations before and after the blog name, e.g., .com, .ca,.co.uk,
+# www., etc.
 
-set :host, ENV["F_HOST"]
+set :host_re, %r{^(?:\w+\.)?#{Regexp.quote(ENV["F_HOST"])}(\.\w+){1,2}$}
 
 # XXX this seems not to be used.
 
@@ -169,7 +171,7 @@ helpers do
 
   def page_ok?(key, url)
     uri = URI.parse(url) rescue nil
-    uri.respond_to?(:host) && uri.host == settings.host &&
+    uri.respond_to?(:host) && uri.host =~ settings.host_re &&
       uri.respond_to?(:path) && uri.path !~ %r{^/b/}
   end
 
