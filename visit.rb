@@ -2,7 +2,8 @@ require "uri"
 
 class Visit
   attr_reader :id, :ip, :url, :title, :city, :region, :country,
-    :country_code, :user_agent, :page, :referrer, :time
+    :country_code, :user_agent, :page, :referrer, :time,
+    :anonymous_proxy
 
   def initialize(args)
     @id = args["id"]
@@ -54,11 +55,8 @@ class Visit
 
   def where
     result = ""
-    case
-    when @city
+    if @city
       result << @city
-    when @anonymous_proxy
-      result << "an anonymous proxy"
     end
     if ["US", "CA"].include?(@country_code) && @region
       result << ", " if result != ""

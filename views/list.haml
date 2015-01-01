@@ -2,12 +2,14 @@
   - list.each do |visit|
     %li
       A visitor
-      - if visit.where
-        from
-        %span.visit-where= visit.where
-        - flag = flag_url(visit.country_code)
-        - if flag
-          %img.visit-flag{src: flag}
+      - if !visit.anonymous_proxy
+        - where = visit.where
+        - if where
+          from
+          %span.visit-where= where
+          - flag = flag_url(visit.country_code)
+          - if flag
+            %img.visit-flag{src: flag}
       viewed
       - title = visit.display_title
       - if title.is_a?(Array)
@@ -17,4 +19,13 @@
         %a.visit-link{href: visit.link_url}= title
       - else
         = title
+      - if visit.anonymous_proxy
+        %span.visit-where
+          using an anonymous proxy
+          - where = visit.where
+          - if where
+            in #{where}
+          - flag = flag_url(visit.country_code)
+          - if flag
+            %img.visit-flag{:src => flag}
       .visit-when= visit.when
