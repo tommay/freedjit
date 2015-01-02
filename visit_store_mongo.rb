@@ -5,7 +5,7 @@ require "bson"
 
 class VisitStoreMongo
   def initialize(mongo_uri)
-    conn = Mongo::Connection.from_uri(mongo_uri)
+    conn = Mongo::Connection.from_uri(mongo_uri, pool_size: 2)
     @db = conn.db(mongo_uri.sub(%r{.*/}, ""))
   end
 
