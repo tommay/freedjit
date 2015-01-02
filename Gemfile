@@ -3,7 +3,7 @@ source "https://rubygems.org"
 ruby "2.1.5"
 
 gem "sinatra"
-gem "thin"
+gem "puma"
 gem "rack-contrib", :require => "rack/contrib"
 gem "unxf"
 gem "clogger"
