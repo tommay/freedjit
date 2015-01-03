@@ -171,8 +171,12 @@ helpers do
 
   def page_ok?(key, url)
     uri = URI.parse(url) rescue nil
-    uri.respond_to?(:host) && uri.host =~ settings.host_re &&
-      uri.respond_to?(:path) && uri.path !~ %r{^/b/}
+    (uri.respond_to?(:host) && uri.host =~ settings.host_re &&
+      uri.respond_to?(:path) && uri.path !~ %r{^/b/}).tap do |result|
+      if !result
+        puts "Rejecting page #{url} for key #{key}"
+      end
+    end
   end
 
   # Return the flag image url for the given country_code, or nil if
