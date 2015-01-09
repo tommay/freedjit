@@ -30,10 +30,13 @@ use Clogger,
   :format => :Combined,
   :reentrant => true
 
-#use Rack::Session::Cookie,
-#  :key => settings.name,
-#  :expire_after => 10*365*86400,
-#  :secret => settings.secret
+# Use session cookies (no need to enable in Sinatra).
+
+use Rack::Session::Cookie,
+  :key => settings.name,
+  :path => "/",
+  :expire_after => 10*365*86400,
+  :secret => settings.secret
 
 # Add JSON-P support by stripping out the callback param and padding
 # the response with the appropriate callback format.

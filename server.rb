@@ -132,7 +132,7 @@ set :password, ENV["F_PASSWORD"]
 
 set :excludes, ENV["F_EXCLUDES"].split(":")
 
-# This is something for the session cookie, which is currently unused.
+# This is the secret to encode/decode session cookies.
 
 set :secret, ENV["F_SECRET"]
 
@@ -190,15 +190,6 @@ helpers do
   end
 end
 
-before do
-  # This was meant to placate IE and make it accept the cookies I
-  # wanted to hand out to distinguish new visitors from returning
-  # visitors, or something, but nobody understands this mess and IE
-  # didn't seem to understand it either.  And I eentually have up on
-  # the cookies for lack of an IE to test with.
-  response["P3P"] = "CP=\"IDC DSP COR ADM DEVi TAIi PSA PSD IVAi IVDi CONi HIS OUR IND CNT\""
-end
-
 # / is just an empty page.  It isn't used by anything.
 
 get "/" do
@@ -234,11 +225,9 @@ get "/visit" do
 
   ok = key_ok?(key) && page_ok?(key, page) && page_ok?(key, url)
 
-  session = {} # XXX
-
   if ok && !session[:ignore] && !settings.excludes.include?(request.ip)
-    if session[:id].nil? || session[:id].size != 16
-      session[:id] = "none" # XXX "%.16x" % rand(1 << 64)
+    if !(session[:id] && session[:id].size == 16)
+      session[:id] = "%.16x" % rand(1 << 64)
       new_visitor = true
     end
 
@@ -267,7 +256,6 @@ get "/visit" do
 end
 
 get "/list" do
-  session = {}
   list = []
   key = params[:key]
   if key_ok?(key)
@@ -288,7 +276,6 @@ get "/list" do
 end
 
 get "/ignore" do
-  session = {}
   if params[:password] == settings.password
     session[:ignore] = true
   else
@@ -298,7 +285,6 @@ get "/ignore" do
 end
 
 get "/clear" do
-  session = {}
   if params[:password] == settings.password
     session.delete(:id)
   end
