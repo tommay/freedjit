@@ -10,8 +10,21 @@ class VisitStoreMongo
   end
 
   def save(key, visit)
-    hash = visit.to_hash
+    # Don't bother storing null or false values.
+
+    hash = visit.to_hash.reject!{|k,v| !v}
+
+    # Don't bother with id == "none" either.
+
+    if hash["id"] == "none"
+      hash.delete("id")
+    end
+
+    # Use the visit's time instead of the default current time in the
+    # document _id.
+
     hash["_id"] = BSON::ObjectId.new(nil, hash.delete("time"))
+
     @db.collection(key).insert(hash)
   end
 
