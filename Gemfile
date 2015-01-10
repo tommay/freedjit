@@ -4,7 +4,7 @@ ruby "2.1.5"
 
 gem "sinatra"
 gem "puma"
-gem "rack-contrib", :require => "rack/contrib"
+gem "rack-contrib", require: "rack/contrib"
 gem "unxf"
 gem "clogger"
 gem "haml"

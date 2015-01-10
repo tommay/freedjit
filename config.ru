@@ -12,7 +12,7 @@ require_relative "server"
 # Sinatra (or something) installs protection when
 # RACK_ENV="production".
 
-set :protection, :except => [:json_csrf]
+set :protection, except: [:json_csrf]
 
 # Remove "HTTP_X_FORWARDED_FOR" in the Rack environment and replace
 # "REMOTE_ADDR" with the value of the original client address.
@@ -26,17 +26,17 @@ disable :logging
 # Use the Apache combined log format.  Sinatra logging will be disabled.
 
 use Clogger,
-  :logger => $stderr,
-  :format => :Combined,
-  :reentrant => true
+  logger: $stderr,
+  format: :Combined,
+  reentrant: true
 
 # Use session cookies (no need to enable in Sinatra).
 
 use Rack::Session::Cookie,
-  :key => settings.name,
-  :path => "/",
-  :expire_after => 10*365*86400,
-  :secret => settings.secret
+  key: settings.name,
+  path: "/",
+  expire_after: 10*365*86400,
+  secret: settings.secret
 
 # Add JSON-P support by stripping out the callback param and padding
 # the response with the appropriate callback format.

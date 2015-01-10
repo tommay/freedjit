@@ -118,8 +118,8 @@ class Visit
       u = URI.parse(url)
       klass = (u.scheme == "https") ? URI::HTTPS : URI::HTTP
       # Don't include the fragment.
-      klass.build(:host => u.host, :port => u.port, :path => u.path,
-                  :query => sanitize_query(u.query))
+      klass.build(host: u.host, port: u.port, path: u.path,
+                  query: sanitize_query(u.query))
     end
   end
 

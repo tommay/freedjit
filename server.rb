@@ -148,7 +148,7 @@ set :country_flags, Hash[
   end
 ]
 
-#set :haml, :escape_html => true
+#set :haml, escape_html: true
 
 maxminddb = MaxMindDB.new("maxmind/GeoLite2-City.mmdb")
 
@@ -251,7 +251,7 @@ get "/visit" do
     visit_store.save(key, visit)
   end
 
-  content_type :json, :charset => "utf-8"
+  content_type :json, charset: "utf-8"
   erb(:"visit.js", locals: {ok: ok})
 end
 
@@ -271,7 +271,7 @@ get "/list" do
 
   html = haml(:list, locals: {list: list})
 
-  content_type :json, :charset => "utf-8"
+  content_type :json, charset: "utf-8"
   erb(:"list.js", locals: {html: html, name: settings.name})
 end
 

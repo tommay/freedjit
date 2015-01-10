@@ -7,14 +7,14 @@
         %span.visit-where= visit.where
         - flag = flag_url(visit.country_code)
         - if flag
-          %img.visit-flag{:src => flag}
+          %img.visit-flag{src: flag}
       viewed
       - title = visit.display_title
       - if title.is_a?(Array)
         = title[0]
         - title = title[1]
       - if visit.link_url
-        %a.visit-link{:href => visit.link_url}= title
+        %a.visit-link{href: visit.link_url}= title
       - else
         = title
       .visit-when= visit.when
