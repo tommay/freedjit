@@ -209,6 +209,7 @@ end
 
 get "/visit" do
   key = params[:key]
+  session = {} # XXX
 
   # document.URL (url for the page containing the javascript)
   page = params[:page] || ""
@@ -227,7 +228,7 @@ get "/visit" do
 
   if ok && !session[:ignore] && !settings.excludes.include?(request.ip)
     if !(session[:id] && session[:id].size == 16)
-      session[:id] = "%.16x" % rand(1 << 64)
+      session[:id] = "none" # "%.16x" % rand(1 << 64)
       new_visitor = true
     end
 
@@ -256,6 +257,7 @@ get "/visit" do
 end
 
 get "/list" do
+  session = {} # XXX
   list = []
   key = params[:key]
   if key_ok?(key)
