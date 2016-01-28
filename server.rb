@@ -22,7 +22,7 @@ require_relative "visit_store_mongo"
 #
 # When deploying to a single host, on EC2 for example, the visitor log
 # can be stored in a flat file, but for a multi-host deployment or
-# Heroku the visitor log needs to be kept in (semi-)duurable off-host
+# Heroku the visitor log needs to be kept in (semi-)durable off-host
 # storage.  I use mongodb for that, because a) it's reasonably simple
 # when I'm not forgetting how to use it, b) I could never attach to a
 # Postgres database on Heroku.  mongodb is fine for a little app like
@@ -32,8 +32,8 @@ require_relative "visit_store_mongo"
 #
 # freedjit is built on three web requests handled by ruby+sinatra, and
 # some javascript running on the browser.  Note that all JSONP
-# resposes return an object that includes an "apply" function which is
-# run by the caller, so the response gets to specify how it should be
+# responses return an object that includes an "apply" function which is
+# run by the requester, so the response gets to specify how it should be
 # "applied".
 #
 # /freedjit.js?key=<key>
@@ -44,13 +44,13 @@ require_relative "visit_store_mongo"
 #   parameters from the containing page and makes a JSONP request to /visit.
 # /visit
 #   A JSONP get request with (see views/freedjit.js.erb for details about
-#   where these values from):
+#   where these values come from):
 #     key: the key that was passed in the /freedjit.js request
 #     page: document.URL of the containing page
 #     title: title of the containing page
 #     url: url of the containing page, or ""
-#     ref: the containing pages's referrer, or ""
-#   Checks the request for proper aauthorization, bundles the
+#     ref: the containing page's referrer, or ""
+#   Checks the request for proper authorization, bundles the
 #   parameters into a Visit object, and saves the Visit to the store.
 #   Returns javascript from views/visit.js.erb.  Its apply function
 #   sets up a function "list" to be run every minute which gets /list
