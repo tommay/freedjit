@@ -8,7 +8,7 @@ gem "rack-contrib", require: "rack/contrib"
 gem "unxf"
 gem "clogger"
 gem "haml"
-gem "mongo"
+gem "mongo", "~> 2.1"
 gem "bson"
 
 # Install bson_ext for performance-critical apps

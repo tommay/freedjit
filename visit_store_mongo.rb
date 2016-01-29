@@ -5,8 +5,7 @@ require "bson"
 
 class VisitStoreMongo
   def initialize(mongo_uri)
-    conn = Mongo::Connection.from_uri(mongo_uri, pool_size: 2)
-    @db = conn.db(mongo_uri.sub(%r{.*/}, ""))
+    @client = Mongo::Client.new(mongo_uri)
   end
 
   def save(key, visit)
@@ -21,17 +20,17 @@ class VisitStoreMongo
     end
 
     # Use the visit's time instead of the default current time in the
-    # document _id.
+    # document _id so visits sort by their time.
 
-    hash["_id"] = BSON::ObjectId.new(nil, hash.delete("time"))
+    hash["_id"] = BSON::ObjectId.from_time(hash.delete("time"), unique: true)
 
-    @db.collection(key).insert(hash)
+    @client[key].insert_one(hash)
   end
 
   def each_not(key, id, ip, &block)
-    @db.collection(key).
-      find(id ? {"id" => {"$ne" => id}} : {"ip" => {"$ne" => ip}}).
-      sort("_id", :desc).batch_size(30).each do |hash|
+    @client[key].
+      find(id ? {id: {"$ne" => id}} : {ip: {"$ne" => ip}}).
+      sort("_id": -1).batch_size(30).each do |hash|
       hash["time"] = hash.delete("_id").generation_time.to_i
       yield(Visit.new(hash))
     end
