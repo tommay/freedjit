@@ -25,13 +25,17 @@
 class ConfigFromEnv
   def self.get_config
     key = ENV["F_KEY"]
-    {
-      key => {
-        "key" => key,
-        "host" => ENV["F_HOST"],
-        "name" => ENV["F_NAME"],
-        "excludes" => ENV["F_EXCLUDES"].split(":"),
+    if key
+      {
+        key => {
+          "key" => key,
+          "host" => ENV["F_HOST"],
+          "name" => ENV["F_NAME"],
+          "excludes" => ENV["F_EXCLUDES"].split(":"),
+        }
       }
-    }
+    else
+      {}
+    end
   end
 end

@@ -10,6 +10,7 @@ require "maxminddb"
 require_relative "visit"
 require_relative "visit_store_mongo"
 require_relative "config_from_env"
+require_relative "config_from_mongo"
 
 # Freedjit is a widget that can be added to a blogspot page template.
 # It logs visits to the blog, and displays a list of the N most recent
@@ -90,9 +91,13 @@ require_relative "config_from_env"
 #     <script src='http://localhost:4093/who.js?key=s69m9pslkv' type='text/javascript' async='async'></script>
 #   </div>
 
-# Get the configuraion settings from environment variables.
+# Connect to mongodb.
 
-set :config, ConfigFromEnv.get_config
+mongo_client = Mongo::Client.new(ENV["MONGOLAB_URI"])
+
+# Load the key => configuration mappings, from both the environment and mongodb.
+
+set :config, ConfigFromEnv.get_config.merge(ConfigFromMongo.new(mongo_client).load_config)
 
 # Create a regular expression for each key that matches its host, with
 # variations at the beginning (www., etc.) and end (.com, .ca, .co.uk,
@@ -113,8 +118,6 @@ set :password, ENV["F_PASSWORD"]
 
 set :secret, ENV["F_SECRET"]
 
-mongo_uri = ENV["MONGOLAB_URI"]
-
 # settings.country_flags is a Hash from country_iso_code => url path
 # to use to get the country's flag image.
 
@@ -129,7 +132,7 @@ set :country_flags, Hash[
 
 maxminddb = MaxMindDB.new("maxmind/GeoLite2-City.mmdb")
 
-visit_store = VisitStoreMongo.new(mongo_uri)
+visit_store = VisitStoreMongo.new(mongo_client)
 
 helpers do
   # Convert "" into nil.

@@ -4,8 +4,8 @@ require "mongo"
 require "bson"
 
 class VisitStoreMongo
-  def initialize(mongo_uri)
-    @client = Mongo::Client.new(mongo_uri)
+  def initialize(mongo_client)
+    @client = mongo_client
   end
 
   def save(key, visit)
