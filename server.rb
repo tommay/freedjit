@@ -9,6 +9,7 @@ require "maxminddb"
 
 require_relative "visit"
 require_relative "visit_store_mongo"
+require_relative "config_from_env"
 
 # Freedjit is a widget that can be added to a blogspot page template.
 # It logs visits to the blog, and displays a list of the N most recent
@@ -89,36 +90,17 @@ require_relative "visit_store_mongo"
 #     <script src='http://localhost:4093/who.js?key=s69m9pslkv' type='text/javascript' async='async'></script>
 #   </div>
 
-# Put environment variables into settings.  In most cases we could
-# just put them in local variables and access them via
-# blocks/closures, but anything needed by a helper method defined with
-# "def" can't be accessed via a closure and needs to go in settings.
+# Get the configuraion settings from environment variables.
 
-# Name is the name recognized for fetching the main javascript file,
-# i.e., /<name>.js.
+set :config, ConfigFromEnv.get_config
 
-set :name, ENV["F_NAME"]
+# Create a regular expression for each key that matches its host, with
+# variations at the beginning (www., etc.) and end (.com, .ca, .co.uk,
+# etc.).
 
-# Key is intended to be used for multi-user/multi-site support, each
-# user/site having a different key.  For now only one key is
-# recognized.  An invalid key gives a 404.  Note that the key is in
-# the html that makes these requests so it's not secure, but it's
-# intended to match only one host passed in from the page's url and
-# title so it's not too bad.
-
-set :key, ENV["F_KEY"]
-
-# The blog that matches the key, e.g., "xyz.blogspot".  Only requests
-# from this blog are honored by /visit, as determined by host of the
-# url parameter passed in the request.  Use a regexp to match
-# variations before and after the blog name, e.g., .com, .ca,.co.uk,
-# www., etc.
-
-set :host_re, %r{^(?:\w+\.)?#{Regexp.quote(ENV["F_HOST"])}(\.\w+){1,2}$}
-
-# XXX this seems not to be used.
-
-set :dir, ENV["F_DIR"] || "log"
+settings.config.values.each do |c|
+  c["host_re"] = %r{^(?:\w+\.)?#{Regexp.quote(c["host"])}(\.\w+){1,2}$}
+end
 
 # This is for use with /ignore and /clear requests, which give the
 # browser a session cookie causing it to be ignored in subsequent
@@ -126,11 +108,6 @@ set :dir, ENV["F_DIR"] || "log"
 # site without giving their location away.
 
 set :password, ENV["F_PASSWORD"]
-
-# F_EXCLUDES is a colon-separated list of ip addresses to not track as
-# visitors.
-
-set :excludes, ENV["F_EXCLUDES"].split(":")
 
 # This is the secret to encode/decode session cookies.
 
@@ -161,20 +138,20 @@ helpers do
     (val && val.size > 0) ? val : nil
   end
 
-  # Check that the key matches a known key.
+  # Get the config, if any, for the given key string.
 
-  def key_ok?(key)
-    key == settings.key
+  def config_for_key(key)
+    settings.config[key]
   end
 
-  # Check that the page passed in is ok for the given key.
+  # Check that the page passed in is ok for the given config.
 
-  def page_ok?(key, url)
+  def page_ok?(config, url)
     uri = URI.parse(url) rescue nil
-    (uri.respond_to?(:host) && uri.host =~ settings.host_re &&
+    (uri.respond_to?(:host) && uri.host =~ config["host_re"] &&
       uri.respond_to?(:path) && uri.path !~ %r{^/b/}).tap do |result|
       if !result
-        puts "Rejecting page #{url} for key #{key}"
+        puts "Rejecting page #{url} for key #{config["key"]}"
       end
     end
   end
@@ -197,11 +174,12 @@ get "/" do
 end
 
 # This is the page requested by the widget.  It can have whatever name
-# you want, as specified by F_NAME in the environment.
+# you want, as specified by settings.config[key]["name"].
 
-get "/#{settings.name}.js" do
+get "/:name.js" do |name|
   key = params[:key]
-  halt 404 unless key_ok?(key)
+  config = config_for_key(key)
+  halt 404 unless config && config["name"] == name
   content_type :js
   last_modified File.stat("views/freedjit.js.erb").mtime
   erb(:"freedjit.js", locals: {key: key, http_root: url("/")})
@@ -209,6 +187,8 @@ end
 
 get "/visit" do
   key = params[:key]
+  config = config_for_key(key)
+
   session = {} # XXX
 
   # document.URL (url for the page containing the javascript)
@@ -224,9 +204,9 @@ get "/visit" do
   # document.referrer, i.e., page the user came from.
   referrer = params[:ref]
 
-  ok = key_ok?(key) && page_ok?(key, page) && page_ok?(key, url)
+  ok = config && page_ok?(config, page) && page_ok?(config, url)
 
-  if ok && !session[:ignore] && !settings.excludes.include?(request.ip)
+  if ok && !session[:ignore] && !config["excludes"].include?(request.ip)
     if !(session[:id] && session[:id].size == 16)
       session[:id] = "none" # "%.16x" % rand(1 << 64)
       new_visitor = true
@@ -257,10 +237,11 @@ get "/visit" do
 end
 
 get "/list" do
+  key = params[:key]
+  config = config_for_key(key)
   session = {} # XXX
   list = []
-  key = params[:key]
-  if key_ok?(key)
+  if config
     id = session[:id]
     ip = request.ip
     visit_store.each_not(key, id, ip) do |v|
@@ -274,7 +255,7 @@ get "/list" do
   html = haml(:list, locals: {list: list})
 
   content_type :json, charset: "utf-8"
-  erb(:"list.js", locals: {html: html, name: settings.name})
+  erb(:"list.js", locals: {html: html, name: config["name"]})
 end
 
 get "/ignore" do
