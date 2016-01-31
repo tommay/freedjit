@@ -24,7 +24,11 @@ class VisitStoreMongo
 
     hash["_id"] = BSON::ObjectId.from_time(hash.delete("time"), unique: true)
 
-    @client[key].insert_one(hash)
+    begin
+      @client[key].insert_one(hash)
+    rescue => ex
+      puts "Failed to save visit: #{ex.inspect}"
+    end
   end
 
   def each_not(key, id, ip, &block)
