@@ -12,7 +12,7 @@ require_relative "visit_store_mongo"
 require_relative "config_from_env"
 require_relative "config_from_mongo"
 
-# Freedjit is a widget that can be added to a blogspot page template.
+# Freedjit is a widget that can be added to a blogspot page layout.
 # It logs visits to the blog, and displays a list of the N most recent
 # visitors' cities and/or countries, with little country flag images.
 # The list updates automatically once a minute.
