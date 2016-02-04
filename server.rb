@@ -163,9 +163,11 @@ helpers do
   # there is no flag image.
 
   def flag_url(country_code)
-    country_flag = settings.country_flags[country_code.downcase]
-    if country_flag
-      url(country_flag)
+    if country_code
+      country_flag = settings.country_flags[country_code.downcase]
+      if country_flag
+        url(country_flag)
+      end
     end
   end
 end
