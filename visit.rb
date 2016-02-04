@@ -54,22 +54,11 @@ class Visit
   end
 
   def where
-    result = ""
-    if @city
-      result << @city
-    end
-    if ["US", "CA"].include?(@country_code) && @region
-      result << ", " if result != ""
-      result << @region
-    end
-    if @country
-      result << ", " if result != ""
-      result << @country
-    end
-    if result == ""
-      result = nil
-    end
-    result
+    result =
+      [@city,
+       ["US", "CA"].include?(@country_code) && @region,
+       @country].select{|x|x}.join(", ")
+    result != "" ? result : nil
   end
 
   def when
