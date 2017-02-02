@@ -1,7 +1,7 @@
 # Get config settings from environment variables.  On heroku these
 # can be set with "heroku config:set var=val".
 
-# key: For multi-user/multi-site support, each user/site having a
+# key: For multi-user/multi-site support, each user/site has a
 # different key.  When configuring from environment variables there is
 # only one key.  A request with an unknown key gives a 404 or an empty
 # list.  Note that the key is in the html/javascript that makes the
